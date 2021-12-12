@@ -1,30 +1,51 @@
 import numpy as np
-from PyQt5.QtWidgets import QOpenGLWidget
 from OpenGL.GL import *
 import OpenGL.arrays.vbo as glvbo
-import DICPGETVERTICES
+from sklearn.preprocessing import MinMaxScaler
 
-# ====================================
-# implement keyboard input later
-
-# enter dataset name as string
-#dataset_name = 'iris_dataset.csv'
-#dataset_name = 'hypercube.csv'
-#dataset_name = 'page-blocks-reduced.csv'
-dataset_name = 'breast-cancer-wisconsin-new-feature-even.csv'
-#dataset_name = 'mnist_train.csv'
+import COLORS
 
 
-# ====================================
+def getVertexAndColors(dataframe, class_count, feature_count, count_per_class_array):
+    df = dataframe
+
+    for i in range(2, feature_count):
+        df[df.columns[i]] += df[df.columns[i-2]]
+
+    # scale attributes to fit to graphic coordinate system -0.8 to 0.8
+    scaler = MinMaxScaler((-0.8, 0.8))
+    tmp = df.to_numpy().reshape(-1, 1)
+    scaled = scaler.fit_transform(tmp).reshape(len(df), feature_count)
+    df.loc[:] = scaled
+
+    # get xy_coord [[0,0],[2,0]]
+    xy_coord = df.to_numpy()
+    xy_coord = xy_coord.ravel()
+    xy_coord = np.reshape(xy_coord, (-1, 2))
+
+    # how to randomly generate more colors?
+    colors = COLORS.getColors()
+    class_color_array = colors.colors_array
+
+    color_array = np.tile(class_color_array[0], reps=(count_per_class_array[0]*int((feature_count / 2)), 1))
+    for i in range(1, class_count):
+        temp_array = np.tile(class_color_array[i], reps=(count_per_class_array[i]*int((feature_count / 2)), 1))
+        color_array = np.concatenate((color_array, temp_array))
+
+    return xy_coord, color_array
+
+
 class makeDICP:
-    def __init__(self, new_plot):
-        # get vertex array using getvertices class
-        new_plot.makeCurrent()
+    def __init__(self, new_plot, dataframe, class_count, feature_count, sample_count,
+                 count_per_class_array):
 
-        data_class = DICPGETVERTICES.getVerticesAndColors(dataset_name, ',', True, 'class')
-        data, num_features, num_samples, color_array = data_class.getVertexAndColor()
+        data, color_array = getVertexAndColors(dataframe, class_count, feature_count,
+                                               count_per_class_array)
         data = data.astype('float32')
         color_array = color_array.astype('float32')
+
+        # get vertex array using getvertices class
+        new_plot.makeCurrent()
 
         glClearColor(1, 1, 1, 1)
 
@@ -33,7 +54,6 @@ class makeDICP:
         vbo_color = glvbo.VBO(color_array)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glColor(1, 0, 0)
 
         # bind the buffers
         vbo_vertex.bind()
@@ -44,11 +64,11 @@ class makeDICP:
         glColorPointer(3, GL_FLOAT, 0, vbo_color)
 
         # prepare the indices for drawing several lines
-        indices = np.arange(0, num_samples * int(num_features / 2), int(num_features / 2))
-        num_vert_per_line = np.repeat(int(num_features / 2), num_samples)
+        indices = np.arange(0, sample_count * int(feature_count / 2), int(feature_count / 2))
+        num_vert_per_line = np.repeat(int(feature_count / 2), sample_count)
 
         # draw the plot samples
-        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, num_samples)
+        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, sample_count)
 
         # draw axes
         glBegin(GL_LINES)

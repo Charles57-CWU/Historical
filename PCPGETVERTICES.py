@@ -3,9 +3,10 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 
-def getVertexAndColors(file_name, dataset_sep, headers, class_col_name):
-    # get attributes into dataframe
-    df = pd.read_csv(file_name, sep=dataset_sep)
+def getVertexAndColors(dataframe):
+    df = dataframe
+    class_col_name = 'class'
+
     # get class information
     num_classes = len(df[class_col_name].unique())
     print(num_classes)
@@ -67,15 +68,12 @@ def get_axes(num_features):
 
 
 class getVerticesAndColors:
-    def __init__(self, file_name, dataset_sep, headers, class_col_name):
-        self.file_name = file_name
-        self.dataset_sep = dataset_sep
-        self.headers = headers
-        self.class_col_name = class_col_name
+    def __init__(self, dataframe):
+        self.dataframe = dataframe
 
     # call function to get vertex and color information
     def getVertexAndColor(self):
-        vertex_array, num_features, num_samples, color_array = getVertexAndColors(self.file_name, self.dataset_sep, self.headers, self.class_col_name)
+        vertex_array, num_features, num_samples, color_array = getVertexAndColors(self.dataframe)
         return vertex_array, num_features, num_samples, color_array
 
     # call function to get axes information
@@ -84,6 +82,6 @@ class getVerticesAndColors:
         return axes_vertex_array, axes_color_array
 
 #test code
-p1 = getVerticesAndColors('iris_dataset.txt', ',', True, 'variety')
+#p1 = getVerticesAndColors('iris_dataset.txt', ',', True, 'variety')
 #p1.getVertexAndColor()
-p1.getAxis(9)
+#p1.getAxis(9)

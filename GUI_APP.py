@@ -1,9 +1,6 @@
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5 import uic
-
-from OpenGL.GL import *
+import pandas as pd
 
 # colors
 import COLORS
@@ -14,7 +11,6 @@ import DATA
 # plot information
 import DICP
 import PCP
-
 
 import sys
 
@@ -28,6 +24,11 @@ class Ui(QtWidgets.QMainWindow):
         # general variables
         self.dataset = ''
         self.colors = COLORS.getColors()
+        self.class_count = 0
+        self.feature_count = 0
+        self.sample_count = 0
+        self.count_per_class_array = []
+        self.dataframe = ''
 
         # exit button
         self.exit_button_pressed = self.findChild(QtWidgets.QPushButton, 'exitButton')
@@ -51,29 +52,49 @@ class Ui(QtWidgets.QMainWindow):
 
         # get data
         self.dataset = DATA.getData(filename[0])
-        number_of_classes = self.dataset.number_of_classes
-        class_names_array = self.dataset.class_names_array
-        count_per_class_array = self.dataset.count_per_class_array
-        number_of_samples = self.dataset.number_of_samples
-        number_of_features = self.dataset.number_of_features
+        dataset_name = self.dataset.dataset_name
+        self.dataframe = self.dataset.dataframe
 
-        # display data
-        dataset_info_string = ('Number of Classes: ' + str(number_of_classes) +
-                               '\n\n' + 'Number of Features: ' + str(number_of_features) +
-                               '\n\n' + 'Number of Samples: ' + str(number_of_samples))
+        # class information
+        self.class_count = self.dataset.class_count
+        class_names_array = self.dataset.class_names_array
+        self.count_per_class_array = self.dataset.count_per_class_array
+        # sample and feature information
+        self.sample_count = self.dataset.sample_count
+        self.feature_count = self.dataset.feature_count
+        feature_names_array = self.dataset.feature_names_array
+
+        # display class data
+        class_info_string = ('Dataset Name: ' + dataset_name +
+                             '\n\n' + 'Number of Classes: ' + str(self.class_count) +
+                             '\n\n' + 'Number of Features: ' + str(self.feature_count) +
+                             '\n\n' + 'Number of Samples: ' + str(self.sample_count))
 
         # loop through class names
-        print('here?')
         counter = 1
-        for ele in count_per_class_array:
-            dataset_info_string += ('\n\n' + 'Class ' + str(counter) + ': ' + str(class_names_array[counter - 1]) +
-                                    '\n' + '--Count: ' + str(ele) +
-                                    '\n' + '--Color: ' + self.colors.colors_names_array[counter - 1])
+        for ele in class_names_array:
+            class_info_string += ('\n\n' + 'Class ' + str(counter) + ' - ' + str(ele) +
+                                  '\n' + '--Count: ' + str(self.count_per_class_array[counter - 1]) +
+                                  '\n' + '--Color: ' + self.colors.colors_names_array[counter - 1])
             counter += 1
-        print(dataset_info_string)
+
         # print text to box
-        data_info = self.findChild(QtWidgets.QTextBrowser, 'datasetInfoBrowser')
-        data_info.setText(dataset_info_string)
+        class_info = self.findChild(QtWidgets.QTextBrowser, 'datasetInfoBrowser')
+        class_info.setText(class_info_string)
+
+        # display feature data
+        feature_info_string = ''
+        counter = 1
+        for ele in feature_names_array:
+            feature_info_string += (str('D') + str(counter) + ' - ' + str(ele) + '\n\n')
+            counter += 1
+
+        # remove extra \n\n
+        class_data_string = feature_info_string[:len(feature_info_string) - 2]
+
+        # print text to box
+        feature_info = self.findChild(QtWidgets.QTextBrowser, 'attributeBrowser')
+        feature_info.setText(feature_info_string)
 
     # exit the app
     def exitApp(self):
@@ -98,11 +119,13 @@ class Ui(QtWidgets.QMainWindow):
 
         dic_checked = self.findChild(QtWidgets.QRadioButton, 'dicCheck')
         if dic_checked.isChecked():
-            DICP.makeDICP(request_plot)
+            DICP.makeDICP(request_plot, self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                          self.count_per_class_array)
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
-            PCP.makePCP(request_plot)
+            PCP.makePCP(request_plot, self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                        self.count_per_class_array)
 
 
 app = QtWidgets.QApplication(sys.argv)
