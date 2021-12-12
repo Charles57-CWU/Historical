@@ -4,7 +4,7 @@ import pandas as pd
 
 # colors
 import COLORS
-
+import WARNINGS
 # dataset information
 import DATA
 
@@ -23,6 +23,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # general variables
         self.dataset = ''
+        self.warnings = WARNINGS.getWarning()
         self.colors = COLORS.getColors()
         self.class_count = 0
         self.feature_count = 0
@@ -106,12 +107,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # check for data before generating plot
         if self.dataset == '':
-            no_data_message = QtWidgets.QMessageBox()
-            no_data_message.setWindowTitle('Warning: No dataset')
-            no_data_message.setText('Please upload dataset before generating plot.')
-            no_data_message.setIcon(QtWidgets.QMessageBox.Warning)
-            no_data_message.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            no_data_message.exec()
+            self.warnings.noDataWarning()
             return
 
         # generate plot
@@ -119,6 +115,10 @@ class Ui(QtWidgets.QMainWindow):
 
         dic_checked = self.findChild(QtWidgets.QRadioButton, 'dicCheck')
         if dic_checked.isChecked():
+            if self.feature_count % 2 != 0:
+                self.warnings.oddFeatureCount()
+                return
+
             DICP.makeDICP(request_plot, self.dataframe, self.class_count, self.feature_count, self.sample_count,
                           self.count_per_class_array)
 
