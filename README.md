@@ -1,7 +1,23 @@
 # Multi-dimensional-Visualization-in-2D
 For CS Masters Program at CWU
-
 <pre>
+About:
+This application displays multi-dimensional data in 2D.
+This program will visualize up to ten classes (for now)
+
+--Dataset Information:
+Dataset must be in .txt or .csv format (always)
+Dataset must include headers (always)
+Dataset should only include class and feature columns (for now?)
+Dataset class header must be labeled as "class" without quotations (for now)
+Dataset features besides "class" must be in numeric representation (for now)
+
+--Example dataset:
+length,width,height,class
+2.7,3.5,3.2,dog
+1.2,5.5,2.1,cat
+2.5,4.1,1.6,dog
+
 --Language Used:
 Python 3.9
 
