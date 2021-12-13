@@ -19,10 +19,12 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         # load Ui from ui File made in QTDesigner
         super(Ui, self).__init__()
-        uic.loadUi('visualizationGui.ui', self)
+        uic.loadUi('visualizationGuiTest.ui', self)
 
         # general variables
         self.dataset = ''
+        self.plot_widget = ''
+        self.plot_layout = ''
         self.warnings = WARNINGS.getWarning()
         self.colors = COLORS.getColors()
         self.class_count = 0
@@ -42,6 +44,13 @@ class Ui(QtWidgets.QMainWindow):
         # file upload button
         self.upload_button_pressed = self.findChild(QtWidgets.QPushButton, 'uploadButton')
         self.upload_button_pressed.clicked.connect(self.uploadDataset)
+
+        # file upload button
+        self.test_button_pressed = self.findChild(QtWidgets.QPushButton, 'testButton')
+        self.test_button_pressed.clicked.connect(self.test)
+
+    def test(self):
+        print('hi')
 
     # upload dataset
     def uploadDataset(self):
@@ -91,7 +100,7 @@ class Ui(QtWidgets.QMainWindow):
             counter += 1
 
         # remove extra \n\n
-        class_data_string = feature_info_string[:len(feature_info_string) - 2]
+        feature_info_string = feature_info_string[:len(feature_info_string) - 2]
 
         # print text to box
         feature_info = self.findChild(QtWidgets.QTextBrowser, 'attributeBrowser')
@@ -104,28 +113,29 @@ class Ui(QtWidgets.QMainWindow):
 
     # make the plot
     def createPlot(self):
+        if self.plot_widget != '':
+            self.plot_layout.removeWidget(self.plot_widget)
 
         # check for data before generating plot
         if self.dataset == '':
             self.warnings.noDataWarning()
             return
 
-        # generate plot
-        request_plot = self.findChild(QtWidgets.QOpenGLWidget, 'mainVisual')
-
         dic_checked = self.findChild(QtWidgets.QRadioButton, 'dicCheck')
         if dic_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-
-            DICP.makeDICP(request_plot, self.dataframe, self.class_count, self.feature_count, self.sample_count,
-                          self.count_per_class_array)
+            self.plot_widget = DICP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                                             self.count_per_class_array)
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
-            PCP.makePCP(request_plot, self.dataframe, self.class_count, self.feature_count, self.sample_count,
-                        self.count_per_class_array)
+            self.plot_widget = PCP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                                            self.count_per_class_array)
+
+        self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
+        self.plot_layout.addWidget(self.plot_widget)
 
 
 app = QtWidgets.QApplication(sys.argv)
