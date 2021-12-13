@@ -1,8 +1,9 @@
 from PyQt5 import QtWidgets
 from PyQt5 import uic
+import sys
 import pandas as pd
 
-# colors
+# assistant classes
 import COLORS
 import WARNINGS
 # dataset information
@@ -11,8 +12,7 @@ import DATA
 # plot information
 import DICP
 import PCP
-
-import sys
+import SPCP
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -45,7 +45,7 @@ class Ui(QtWidgets.QMainWindow):
         self.upload_button_pressed = self.findChild(QtWidgets.QPushButton, 'uploadButton')
         self.upload_button_pressed.clicked.connect(self.uploadDataset)
 
-        # file upload button
+        # test button
         self.test_button_pressed = self.findChild(QtWidgets.QPushButton, 'testButton')
         self.test_button_pressed.clicked.connect(self.test)
 
@@ -133,6 +133,14 @@ class Ui(QtWidgets.QMainWindow):
         if pcp_checked.isChecked():
             self.plot_widget = PCP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
                                             self.count_per_class_array)
+
+        spc_checked = self.findChild(QtWidgets.QRadioButton, 'spcCheck')
+        if spc_checked.isChecked():
+            if self.feature_count % 2 != 0:
+                self.warnings.oddFeatureCount()
+                return
+            self.plot_widget = SPCP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                                             self.count_per_class_array)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         self.plot_layout.addWidget(self.plot_widget)
