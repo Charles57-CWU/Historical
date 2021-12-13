@@ -1,3 +1,10 @@
+"""
+COLORS.py holds information related to class colors for plotting
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
 class getColors:
     def __init__(self):
         self.colors_array = [[1, 0, 0],

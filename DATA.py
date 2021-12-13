@@ -1,3 +1,11 @@
+"""
+DATA.py extracts certain information from a dataset
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
+
 import os
 import numpy as np
 import pandas as pd

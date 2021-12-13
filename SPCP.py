@@ -1,3 +1,10 @@
+"""
+SPCP.py holds the information to render a shifted parallel coordinate plot
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
 import numpy as np
 from OpenGL.GL import *
 import OpenGL.arrays.vbo as glvbo
@@ -11,7 +18,7 @@ def getVertexAndColors(dataframe, class_count, feature_count, count_per_class_ar
     df = dataframe.copy()
 
     section_array = np.linspace(start=-0.8, stop=0.8, num=int(feature_count / 2) + 1)
-    print(section_array)
+
     # scale attributes to fit to graphic coordinate system -0.8 to 0.8
 
     j = 0
@@ -23,7 +30,6 @@ def getVertexAndColors(dataframe, class_count, feature_count, count_per_class_ar
             scaler = MinMaxScaler((section_array[j], section_array[j + 1]))
             df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
             j += 1
-   # print(df)
 
     # get xy_coord
     xy_coord = df.to_numpy()

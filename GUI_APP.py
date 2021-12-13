@@ -1,3 +1,11 @@
+"""
+GUI_APP.py is the main executable and holds information related to the main window
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
+
 from PyQt5 import QtWidgets
 from PyQt5 import uic
 import sys
@@ -19,7 +27,7 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         # load Ui from ui File made in QTDesigner
         super(Ui, self).__init__()
-        uic.loadUi('visualizationGuiTest.ui', self)
+        uic.loadUi('visualizationGui.ui', self)
 
         # general variables
         self.dataset = ''

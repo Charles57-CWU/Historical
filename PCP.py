@@ -1,3 +1,11 @@
+"""
+PCP.py holds the information to render a parallel coordinate plot
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
+
 import numpy as np
 from OpenGL.GL import *
 import OpenGL.arrays.vbo as glvbo

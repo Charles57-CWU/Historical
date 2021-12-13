@@ -1,3 +1,10 @@
+"""
+WARNINGS.py holds information related to various warning messages
+
+Author: Charles Recaido
+Program: MSc in Computational Science
+School: Central Washington University
+"""
 from PyQt5 import QtWidgets
 
 
