@@ -22,6 +22,7 @@ import DICP
 import PCP
 import SPCP
 import GLCSP
+import GLCSTP
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -158,6 +159,14 @@ class Ui(QtWidgets.QMainWindow):
                 return
             self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
                                               self.count_per_class_array)
+
+        glcst_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
+        if glcst_checked.isChecked():
+            if self.feature_count % 2 != 0:
+                self.warnings.oddFeatureCount()
+                return
+            self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                                               self.count_per_class_array)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         self.plot_layout.addWidget(self.plot_widget)
