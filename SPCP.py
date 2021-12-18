@@ -1,5 +1,5 @@
 """
-SPCP.py holds the information to render a shifted parallel coordinate plot
+SPCP.py holds the information to render a shifted paired coordinate plot
 
 Author: Charles Recaido
 Program: MSc in Computational Science
