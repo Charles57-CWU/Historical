@@ -22,6 +22,11 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
         scaler = MinMaxScaler((0, space))
         df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
 
+    #scaler = MinMaxScaler((-0.8, 0.8))
+    #tmp = df.to_numpy().reshape(-1, 1)
+    #scaled = scaler.fit_transform(tmp).reshape(len(df), feature_count)
+    #df.loc[:] = scaled
+
     # get xy_coord [[0,0],[2,0]]
     xy_coord = df.to_numpy()
     xy_coord = xy_coord.ravel()
@@ -38,9 +43,9 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
             scaffold_axis = np.append(scaffold_axis, [
                 [scaffold_axis[i - 1][0] + xy_coord[j][0], scaffold_axis[i - 1][1] + xy_coord[j][1]]], 0)
             j += 1
-    print(scaffold_axis.shape)
 
-    arrowhead_size = 0.02
+    arrowhead_size = 0.03
+    arrowhead_angle = arrowhead_size * np.tan(np.radians(30)/2)
     triangle_array = np.asarray([[0, 0, 0]])
     for i in range(sample_count * int(feature_count / 2 + 1)):
         if i % int(feature_count / 2 + 1) == 0:
@@ -53,20 +58,24 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
             vY = scaffold_axis[i][1] - scaffold_axis[i - 1][1]
 
             length = np.sqrt(vX ** 2 + vY ** 2)
-            unitvX = vX / length
-            unitvY = vY / length
+            if length != 0:
+                unitvX = vX / length
+                unitvY = vY / length
+            else:
+                unitvX = 0
+                unitvY = 0
 
-            v_point_1 = [scaffold_axis[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_size,
-                         scaffold_axis[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_size]
+            v_point_1 = [scaffold_axis[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_angle,
+                         scaffold_axis[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_angle]
 
             triangle_array = np.append(triangle_array, [[v_point_1[0], v_point_1[1], 0]], 0)
 
-            v_point_2 = [scaffold_axis[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_size,
-                         scaffold_axis[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_size]
+            v_point_2 = [scaffold_axis[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_angle,
+                         scaffold_axis[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_angle]
             triangle_array = np.append(triangle_array, [[v_point_2[0], v_point_2[1], 0]], 0)
 
     triangle_array = np.delete(triangle_array, 0, 0)
-    print(triangle_array)
+    #print(triangle_array)
     arrowhead_color_array = np.tile([0, 0, 0], reps=(triangle_array.shape[0], 1))
 
     # how to randomly generate more colors?
@@ -107,6 +116,11 @@ class makePlot(QOpenGLWidget):
     def initializeGL(self):
         # make background white
         glClearColor(1, 1, 1, 1)
+       # glShadeModel(GL_SMOOTH)
+       # glEnable(GL_LINE_SMOOTH)
+       # glEnable(GL_BLEND)
+       # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+       # glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 
     # for resizing plot
     def resizeGL(self, w, h):
@@ -144,12 +158,11 @@ class makePlot(QOpenGLWidget):
         glEnableClientState(GL_COLOR_ARRAY)
         glColorPointer(3, GL_FLOAT, 0, vbo_triangle_color)
 
-        triangle_indices = np.arange(0, self.sample_count * (int(self.feature_count / 2) + 1) * 2,
+        triangle_indices = np.arange(0, self.sample_count * (int(self.feature_count / 2) + 1) * int(self.feature_count / 2),
                                      int(self.feature_count / 2) + 1)
-        triangle_vert = np.repeat(int(self.feature_count / 2 + 1), self.sample_count * 2)
-        print(len(triangle_vert))
+        triangle_vert = np.repeat(int(self.feature_count / 2 + 1), self.sample_count * int(self.feature_count / 2))
 
-        glMultiDrawArrays(GL_TRIANGLES, triangle_indices, triangle_vert, self.sample_count * 2)
+        glMultiDrawArrays(GL_TRIANGLES, triangle_indices, triangle_vert, self.sample_count * int(self.feature_count / 2))
 
         # draw axes
         glBegin(GL_LINES)

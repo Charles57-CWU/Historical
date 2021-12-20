@@ -73,7 +73,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Shifted Parallel Coordinate Plot</string>
+     <string>Shifted Paired Coordinate Plot</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="dicCheck">

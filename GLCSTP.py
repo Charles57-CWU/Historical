@@ -17,18 +17,18 @@ import COLORS
 def getVertexAndColors(dataframe, class_count, feature_count, sample_count, count_per_class_array):
     df = dataframe.copy()
 
-    angle_array = [-45, -45, -45, -45, -45, -45, -45]
+    angle_array = [-45, -45, -45, -45, -45, -45, -45, -45]
     j = 0
     for i in range(2, feature_count, 2):
-        xy_temp = np.asarray([df[df.columns[i]], df[df.columns[i+1]]])
+        xy_temp = np.asarray([df[df.columns[i]], df[df.columns[i + 1]]])
         theta = np.radians(angle_array[j])
         j += 1
         rotation_matrix = np.array([[np.cos(theta), -np.sin(theta)],
-                                    [np.sin(theta),  np.cos(theta)]])
+                                    [np.sin(theta), np.cos(theta)]])
 
         xy_temp = np.matmul(rotation_matrix, xy_temp)
         df[df.columns[i]] = xy_temp[0]
-        df[df.columns[i+1]] = xy_temp[1]
+        df[df.columns[i + 1]] = xy_temp[1]
 
     space = 1.6 / (int(feature_count / 2) + 1)
     for i in range(feature_count):
@@ -52,6 +52,40 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
                 [scaffold_axis[i - 1][0] + xy_coord[j][0], scaffold_axis[i - 1][1] + xy_coord[j][1]]], 0)
             j += 1
 
+    arrowhead_size = 0.03
+    arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
+    triangle_array = np.asarray([[0, 0, 0]])
+    for i in range(sample_count * int(feature_count / 2 + 1)):
+        if i % int(feature_count / 2 + 1) == 0:
+            continue
+        else:
+            triangle_array = np.append(triangle_array, [[scaffold_axis[i][0], scaffold_axis[i][1], 0]], 0)
+
+            # find unit vector of line
+            vX = scaffold_axis[i][0] - scaffold_axis[i - 1][0]
+            vY = scaffold_axis[i][1] - scaffold_axis[i - 1][1]
+
+            length = np.sqrt(vX ** 2 + vY ** 2)
+            if length != 0:
+                unitvX = vX / length
+                unitvY = vY / length
+            else:
+                unitvX = 0
+                unitvY = 0
+
+            v_point_1 = [scaffold_axis[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_angle,
+                         scaffold_axis[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_angle]
+
+            triangle_array = np.append(triangle_array, [[v_point_1[0], v_point_1[1], 0]], 0)
+
+            v_point_2 = [scaffold_axis[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_angle,
+                         scaffold_axis[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_angle]
+            triangle_array = np.append(triangle_array, [[v_point_2[0], v_point_2[1], 0]], 0)
+
+    triangle_array = np.delete(triangle_array, 0, 0)
+    # print(triangle_array)
+    arrowhead_color_array = np.tile([0, 0, 0], reps=(triangle_array.shape[0], 1))
+
     # how to randomly generate more colors?
     colors = COLORS.getColors()
     class_color_array = colors.colors_array
@@ -61,7 +95,7 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
         temp_array = np.tile(class_color_array[i], reps=(count_per_class_array[i] * int((feature_count / 2) + 1), 1))
         color_array = np.concatenate((color_array, temp_array))
 
-    return scaffold_axis, color_array
+    return scaffold_axis, color_array, triangle_array, arrowhead_color_array
 
 
 class makePlot(QOpenGLWidget):
@@ -77,10 +111,14 @@ class makePlot(QOpenGLWidget):
         self.sample_count = sample_count
         self.count_per_class_array = count_per_class_array
 
-        data, color_array = getVertexAndColors(self.dataframe, self.class_count, self.feature_count,
-                                               self.sample_count, self.count_per_class_array)
+        data, color_array, arrowhead_array, arrowhead_color_array = getVertexAndColors(self.dataframe, self.class_count,
+                                                                                       self.feature_count,
+                                                                                       self.sample_count,
+                                                                                       self.count_per_class_array)
         self.data = data.astype('float32')
         self.color_array = color_array.astype('float32')
+        self.arrowhead_array = arrowhead_array.astype('float32')
+        self.arrowhead_color_array = arrowhead_color_array.astype('float32')
 
     # initialize the buffers
     def initializeGL(self):
@@ -96,6 +134,8 @@ class makePlot(QOpenGLWidget):
     def paintGL(self):
         vbo_vertex = glvbo.VBO(self.data)
         vbo_color = glvbo.VBO(self.color_array)
+        vbo_triangle = glvbo.VBO(self.arrowhead_array)
+        vbo_triangle_color = glvbo.VBO(self.arrowhead_color_array)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -114,6 +154,21 @@ class makePlot(QOpenGLWidget):
         # draw the plot samples
         glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, self.sample_count)
 
+        vbo_triangle.bind()
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glVertexPointer(3, GL_FLOAT, 0, vbo_triangle)
+        vbo_triangle_color.bind()
+        glEnableClientState(GL_COLOR_ARRAY)
+        glColorPointer(3, GL_FLOAT, 0, vbo_triangle_color)
+
+        triangle_indices = np.arange(0, self.sample_count * (int(self.feature_count / 2) + 1) * int(
+            self.feature_count / 2),
+                                     int(self.feature_count / 2) + 1)
+        triangle_vert = np.repeat(int(self.feature_count / 2 + 1), self.sample_count * int(self.feature_count / 2))
+
+        glMultiDrawArrays(GL_TRIANGLES, triangle_indices, triangle_vert,
+                          self.sample_count * int(self.feature_count / 2))
+
         # draw axes
         glBegin(GL_LINES)
         glColor(0, 0, 0)
@@ -126,4 +181,3 @@ class makePlot(QOpenGLWidget):
         glVertex2f(-0.8, -0.8)
         glVertex2f(-0.8, 0.8)
         glEnd()
-

@@ -106,7 +106,7 @@ class Ui(QtWidgets.QMainWindow):
         feature_info_string = ''
         counter = 1
         for ele in feature_names_array:
-            feature_info_string += (str('D') + str(counter) + ' - ' + str(ele) + '\n\n')
+            feature_info_string += (str('X') + str(counter) + ' - ' + str(ele) + '\n\n')
             counter += 1
 
         # remove extra \n\n

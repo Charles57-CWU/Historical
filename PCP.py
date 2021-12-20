@@ -20,7 +20,10 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
 
     # scale attributes to fit to graphic coordinate system -0.8 to 0.8
     scaler = MinMaxScaler((-0.8, 0.8))
-    df[:] = scaler.fit_transform(df[:])
+    #df[:] = scaler.fit_transform(df[:])
+    tmp = df.to_numpy().reshape(-1, 1)
+    scaled = scaler.fit_transform(tmp).reshape(len(df), feature_count)
+    df.loc[:] = scaled
 
     # change into 3 coordinate numpy vertex array ie: [[0, 0, 0], [1, 1, 1]]
     # get x_coord
