@@ -10,6 +10,7 @@ from OpenGL.GL import *
 import OpenGL.arrays.vbo as glvbo
 from sklearn.preprocessing import MinMaxScaler
 from PyQt5.QtWidgets import QOpenGLWidget
+from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetricsF
 
 import COLORS
 
@@ -65,6 +66,26 @@ def get_axes(feature_count):
     return axis_vertex_array, axis_color_array
 
 
+def draw_axes_markers(painter, feature_count, width, height, fm):
+    x_min = 0.1 * width
+    x_max = width - x_min
+    vert_pos_array = np.linspace(x_min, x_max, int(feature_count/2) + 1)
+    horiz_pos_array = np.linspace(x_min, x_max, feature_count + 1)
+
+    j = 2
+    for i in range(int(feature_count/2)):
+        # create the vertical markers
+        y_marker = 'X' + str(j)
+        x_offset_vertical = fm.boundingRect(y_marker).width()/2
+        painter.drawText(vert_pos_array[i] - x_offset_vertical, height*0.1 - 10, y_marker)
+        # create the horizontal markers
+        x_marker = 'X' + str(j-1)
+        x_offset_horizontal = fm.boundingRect(x_marker).width() / 2
+        painter.drawText(horiz_pos_array[j-1] - x_offset_horizontal, height - (height * 0.1) + 20, x_marker)
+
+        j += 2
+
+
 class makePlot(QOpenGLWidget):
     width = 800
     height = 600
@@ -117,7 +138,12 @@ class makePlot(QOpenGLWidget):
         num_vert_per_line = np.repeat(int(self.feature_count / 2), self.sample_count)
 
         # draw the plot samples
-        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, int(self.sample_count/2))
+        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, self.sample_count)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        vbo_vertex.unbind()
+        vbo_color.unbind()
 
         # bind the buffers
         vbo_axis.bind()
@@ -133,3 +159,27 @@ class makePlot(QOpenGLWidget):
 
         # draw axes
         glMultiDrawArrays(GL_LINES, axis_ind, axis_per_line, self.feature_count + 1)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        vbo_axis.unbind()
+        vbo_axis_color.unbind()
+
+        # ===========================DRAW PLOT TEXT=========================================
+        # paint plot title and dimension markers
+        painter = QPainter()
+        painter.begin(self)
+
+        # set color and font size
+        painter.setPen(QColor('Black'))
+        painter.setFont(QFont('Helvetica', 15))
+        fm = QFontMetricsF(painter.font())
+
+        # center and paint the plot markers
+        draw_axes_markers(painter, self.feature_count, self.width, self.height, fm)
+
+        # center and paint the title
+        title = 'Shifted Paired Coordinate Plot'
+        x_title_offset = fm.boundingRect(title).width()/2
+        painter.drawText(self.width/2 - x_title_offset, 20, title)
+        painter.end()
