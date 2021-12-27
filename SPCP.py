@@ -117,7 +117,7 @@ class makePlot(QOpenGLWidget):
         num_vert_per_line = np.repeat(int(self.feature_count / 2), self.sample_count)
 
         # draw the plot samples
-        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, self.sample_count)
+        glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, int(self.sample_count/2))
 
         # bind the buffers
         vbo_axis.bind()

@@ -11,6 +11,8 @@ from OpenGL.GL import *
 import OpenGL.arrays.vbo as glvbo
 from sklearn.preprocessing import MinMaxScaler
 from PyQt5.QtWidgets import QOpenGLWidget
+from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetricsF
+from PyQt5.QtCore import Qt, QRectF
 
 import COLORS
 
@@ -54,7 +56,7 @@ def getVertexAndColors(dataframe, class_count, feature_count, sample_count, coun
 
 def get_axes(num_features):
     # add x-axis
-    axis_vertex_array = [[-0.8, -0.8, 0], [0.8, -0.8, 0]]
+    axis_vertex_array = [[0, 0, 0]]
     # add y-axes
 
     x_coord_array = np.linspace(start=-0.8, stop=0.8, num=num_features)
@@ -65,9 +67,21 @@ def get_axes(num_features):
         axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i], 0])
         axis_vertex_array.append([x_coord_array[i], y_coord_array_top[i], 0])
 
-    axis_color_array = np.tile([0, 0, 0], reps=(num_features * 2 + 2, 1))
+    axis_color_array = np.tile([0, 0, 0], reps=(num_features * 2 + 1, 1))
+    axis_vertex_array = np.delete(axis_vertex_array, 0, 0)
 
     return axis_vertex_array, axis_color_array
+
+
+def draw_axes_markers(painter, feature_count, width, height, fm):
+    x_min = 0.1 * width
+    x_max = width - x_min
+    x_pos_array = np.linspace(x_min, x_max, feature_count)
+
+    for i in range(feature_count):
+        marker = 'X' + str(i+1)
+        x_offset = fm.boundingRect(marker).width()/2
+        painter.drawText(x_pos_array[i] - x_offset, height - (height*0.1) + 20, marker)
 
 
 class makePlot(QOpenGLWidget):
@@ -97,6 +111,7 @@ class makePlot(QOpenGLWidget):
     def initializeGL(self):
         # make background white
         glClearColor(1, 1, 1, 1)
+        #glMatrixMode(GL_MODELVIEW)
 
     def resizeGL(self, w, h):
         self.width, self.height = w, h
@@ -114,9 +129,10 @@ class makePlot(QOpenGLWidget):
         # bind the buffers
         vbo_vertex.bind()
         glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_COLOR_ARRAY)
         glVertexPointer(3, GL_FLOAT, 0, vbo_vertex)
         vbo_color.bind()
-        glEnableClientState(GL_COLOR_ARRAY)
+        #glEnableClientState(GL_COLOR_ARRAY)
         glColorPointer(3, GL_FLOAT, 0, vbo_color)
 
         # prepare the indices for drawing several lines
@@ -125,6 +141,12 @@ class makePlot(QOpenGLWidget):
 
         # draw the plot samples
         glMultiDrawArrays(GL_LINE_STRIP, indices, num_vert_per_line, self.sample_count)
+
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        vbo_vertex.unbind()
+        vbo_color.unbind()
+
 
         # bind the buffers
         vbo_axis.bind()
@@ -135,12 +157,30 @@ class makePlot(QOpenGLWidget):
         glColorPointer(3, GL_FLOAT, 0, vbo_axis_color)
 
         # prepare the indices for drawing several lines
-        axis_ind = np.arange(0, (self.feature_count + 1) * 2, 2)
-        axis_per_line = np.repeat(2, self.feature_count + 1)
+        axis_ind = np.arange(0, self.feature_count * 2, 2)
+        axis_per_line = np.repeat(2, self.feature_count)
 
         # draw axes
-        glMultiDrawArrays(GL_LINES, axis_ind, axis_per_line, self.feature_count + 1)
+        glMultiDrawArrays(GL_LINES, axis_ind, axis_per_line, self.feature_count)
 
-        # make buffers
+        glDisableClientState(GL_VERTEX_ARRAY)
+        glDisableClientState(GL_COLOR_ARRAY)
+        vbo_axis.unbind()
+        vbo_axis_color.unbind()
+
+
+        painter = QPainter()
+        painter.begin(self)
+        painter.setPen(QColor('Black'))
+        painter.setFont(QFont('Helvetica', 15))
+        fm = QFontMetricsF(painter.font())
+        painter.setRenderHints(painter.Antialiasing)
+        draw_axes_markers(painter, self.feature_count, self.width, self.height, fm)
+        title = 'Parallel Coordinate Plot'
+        x_title_offset = fm.boundingRect(title).width()/2
+        painter.drawText(self.width/2 - x_title_offset, 40, title)
+        #painter.drawText()
+        painter.end()
+
 
 
