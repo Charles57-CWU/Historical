@@ -41,7 +41,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>590</y>
+      <y>620</y>
       <width>201</width>
       <height>51</height>
      </rect>
@@ -161,6 +161,19 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="plotDisplay"/>
+   </widget>
+   <widget class="QRadioButton" name="apCheck">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>580</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Angled Coordinate Plot</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

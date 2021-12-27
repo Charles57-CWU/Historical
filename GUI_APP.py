@@ -23,6 +23,7 @@ import PCP
 import SPCP
 import GLCSP
 import GLCSTP
+import AP
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -143,6 +144,11 @@ class Ui(QtWidgets.QMainWindow):
         if pcp_checked.isChecked():
             self.plot_widget = PCP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
                                             self.count_per_class_array)
+
+        ap_checked = self.findChild(QtWidgets.QRadioButton, 'apCheck')
+        if ap_checked.isChecked():
+            self.plot_widget = AP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+                                           self.count_per_class_array)
 
         spc_checked = self.findChild(QtWidgets.QRadioButton, 'spcCheck')
         if spc_checked.isChecked():

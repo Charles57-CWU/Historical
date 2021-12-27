@@ -46,4 +46,4 @@ QTDesigner
 Iris dataset - https://archive.ics.uci.edu/ml/datasets/iris
 
 Breast Cancer Wisconsin (Original) dataset - https://archive.ics.uci.edu/ml/datasets/breast+cancer+wisconsin+%28original%29
-<pre>
+</pre>
