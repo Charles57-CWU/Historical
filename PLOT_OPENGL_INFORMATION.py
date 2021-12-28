@@ -8,7 +8,8 @@ School: Central Washington University
 
 import PCP
 import ACP
-import SPCPTEST
+import SPCP
+import DICP
 
 
 class getPlotInfo:
@@ -51,7 +52,13 @@ class getPlotInfo:
             self.title = ap_info.getLabelInformation()
 
         elif plot_type == 'SPCP':
-            spcp_info = SPCPTEST.getSPCPInfo(dataframe, class_count, feature_count, sample_count,
-                                             count_per_class_array)
+            spcp_info = SPCP.getSPCPInfo(dataframe, class_count, feature_count, sample_count,
+                                         count_per_class_array)
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = spcp_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = spcp_info.getAxesVertices()
+
+        elif plot_type == 'DICP':
+            dicp_info = DICP.getDICPInfo(dataframe, class_count, feature_count, sample_count,
+                                         count_per_class_array)
+            self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = dicp_info.getClassVertices()
+            self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = dicp_info.getAxesVertices()

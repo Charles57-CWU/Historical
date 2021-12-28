@@ -159,8 +159,9 @@ class Ui(QtWidgets.QMainWindow):
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-            self.plot_widget = DICP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-                                             self.count_per_class_array)
+            self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
+                                                 self.sample_count,
+                                                 self.count_per_class_array, 'DICP')
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
