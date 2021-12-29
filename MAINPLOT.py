@@ -62,6 +62,7 @@ class makePlot(QOpenGLWidget):
         self.axes_index_starts = None
         self.axes_vertex_count = None
         self.axes_count = None
+        self.plot_axes = True
 
         # get plot information
         if self.plot_type:
@@ -141,25 +142,26 @@ class makePlot(QOpenGLWidget):
             vbo_class_colors.unbind()
 
             # ===========================DRAW PLOT AXES=========================================
-            # bind the buffers
-            vbo_axes_vertices = glvbo.VBO(self.axes_vertices)
-            vbo_axes_vertices.bind()
-            glEnableClientState(GL_VERTEX_ARRAY)
-            glVertexPointer(2, GL_FLOAT, 0, vbo_axes_vertices)
+            if self.plot_axes:
+                # bind the buffers
+                vbo_axes_vertices = glvbo.VBO(self.axes_vertices)
+                vbo_axes_vertices.bind()
+                glEnableClientState(GL_VERTEX_ARRAY)
+                glVertexPointer(2, GL_FLOAT, 0, vbo_axes_vertices)
 
-            vbo_axes_color = glvbo.VBO(self.axes_color)
-            vbo_axes_color.bind()
-            glEnableClientState(GL_COLOR_ARRAY)
-            glColorPointer(3, GL_FLOAT, 0, vbo_axes_color)
+                vbo_axes_color = glvbo.VBO(self.axes_color)
+                vbo_axes_color.bind()
+                glEnableClientState(GL_COLOR_ARRAY)
+                glColorPointer(3, GL_FLOAT, 0, vbo_axes_color)
 
-            # draw axes
-            glMultiDrawArrays(GL_LINES, self.axes_index_starts, self.axes_vertex_count, self.axes_count)
+                # draw axes
+                glMultiDrawArrays(GL_LINES, self.axes_index_starts, self.axes_vertex_count, self.axes_count)
 
-            # unbind buffers
-            glDisableClientState(GL_VERTEX_ARRAY)
-            glDisableClientState(GL_COLOR_ARRAY)
-            vbo_axes_vertices.unbind()
-            vbo_axes_color.unbind()
+                # unbind buffers
+                glDisableClientState(GL_VERTEX_ARRAY)
+                glDisableClientState(GL_COLOR_ARRAY)
+                vbo_axes_vertices.unbind()
+                vbo_axes_color.unbind()
 
             # ===========================DRAW PLOT TEXT=========================================
             # paint plot title and dimension markers

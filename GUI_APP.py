@@ -64,6 +64,8 @@ class Ui(QtWidgets.QMainWindow):
         self.update_plot_button_pressed = self.findChild(QtWidgets.QPushButton, 'updatePlotButton')
         self.update_plot_button_pressed.clicked.connect(self.updatePlot)
 
+        self.show_axes = self.findChild(QtWidgets.QCheckBox, 'axesCheck')
+
     def test(self):
         print('hi')
 
@@ -195,21 +197,27 @@ class Ui(QtWidgets.QMainWindow):
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-            self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-                                              self.count_per_class_array)
+           # self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+             #                                 self.count_per_class_array)
 
         glcst_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
         if glcst_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-            self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-                                               self.count_per_class_array)
+            #self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+              #                                 self.count_per_class_array)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         self.plot_layout.addWidget(self.plot_widget)
 
     def updatePlot(self):
+
+        if self.show_axes.checkState() == Qt.CheckState.Unchecked:
+            self.plot_widget.plot_axes = False
+        else:
+            self.plot_widget.plot_axes = True
+
         classes_to_display = []
         for i in range(self.class_count):
             if self.class_table.item(i, 0).checkState() == Qt.CheckState.Checked:
