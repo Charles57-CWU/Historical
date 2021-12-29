@@ -44,8 +44,10 @@ class Ui(QtWidgets.QMainWindow):
         self.dataframe = None
         self.index_starts = None
         self.vertex_count = None
-        self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, self.plot_type)
+        self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, 0, self.plot_type)
         self.feature_table.__class__.dropEvent = self.featureSwap
+        self.feature_position_array = None
+        self.feature_names_array = None
 
         # exit button
         self.exit_button_pressed = self.findChild(QtWidgets.QPushButton, 'exitButton')
@@ -68,6 +70,9 @@ class Ui(QtWidgets.QMainWindow):
         self.update_plot_button_pressed.clicked.connect(self.updatePlot)
 
         self.show_axes = self.findChild(QtWidgets.QCheckBox, 'axesCheck')
+
+        self.update_feature_button_pressed = self.findChild(QtWidgets.QPushButton, 'replotFeatureButton')
+        self.update_feature_button_pressed.clicked.connect(self.replotFeatures)
 
     def test(self):
         print('hi')
@@ -94,7 +99,8 @@ class Ui(QtWidgets.QMainWindow):
         # sample and feature information
         self.sample_count = self.dataset.sample_count
         self.feature_count = self.dataset.feature_count
-        feature_names_array = self.dataset.feature_names_array
+        self.feature_names_array = self.dataset.feature_names_array
+        self.feature_position_array = np.arange(1, self.feature_count + 1)
 
         # display class data
         class_info_string = ('Dataset Name: ' + dataset_name +
@@ -115,9 +121,9 @@ class Ui(QtWidgets.QMainWindow):
         class_info.setText(class_info_string)
 
         # display feature data
-        feature_info_string = ''
+        feature_info_string = 'Features:\n\n'
         counter = 1
-        for ele in feature_names_array:
+        for ele in self.feature_names_array:
             feature_info_string += (str('X') + str(counter) + ' - ' + str(ele) + '\n\n')
             counter += 1
 
@@ -146,7 +152,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.feature_table.setRowCount(self.feature_count)
         self.feature_table.setColumnCount(1)
-        self.feature_table.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem('Feature'))
+        self.feature_table.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem('Feature Order'))
         # table properties
         self.feature_table.setDragEnabled(True)
         self.feature_table.setAcceptDrops(True)
@@ -157,8 +163,8 @@ class Ui(QtWidgets.QMainWindow):
         header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         counter = 0
-        for ele in feature_names_array:
-            item = QtWidgets.QTableWidgetItem(str(ele))
+        for ele in self.feature_names_array:
+            item = QtWidgets.QTableWidgetItem(str(ele) + ' - (X' + str(counter+1) + ')')
             self.feature_table.setItem(counter, 0, item)
             counter += 1
 
@@ -171,7 +177,20 @@ class Ui(QtWidgets.QMainWindow):
         self.feature_table.item(moved_from, 0).setText(to_item)
         self.feature_table.item(moved_to, 0).setText(from_item)
 
+        place_holder = self.feature_names_array[moved_from]
+        self.feature_names_array[moved_from] = self.feature_names_array[moved_to]
+        self.feature_names_array[moved_to] = place_holder
+
+        place_holder = self.feature_position_array[moved_from]
+        self.feature_position_array[moved_from] = self.feature_position_array[moved_to]
+        self.feature_position_array[moved_to] = place_holder
+        self.plot_widget.feature_positions = self.feature_position_array
+
         event.accept()
+
+    def replotFeatures(self):
+        self.dataframe = self.dataframe[self.feature_names_array]
+        self.createPlot()
 
     # exit the app
     def exitApp(self):
@@ -195,25 +214,25 @@ class Ui(QtWidgets.QMainWindow):
                 return
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, 'DICP')
+                                                 self.count_per_class_array, self.feature_position_array, 'DICP')
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, 'PCP')
+                                                 self.count_per_class_array, self.feature_position_array, 'PCP')
 
         ap_checked = self.findChild(QtWidgets.QRadioButton, 'apCheck')
         if ap_checked.isChecked():
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, 'AP')
+                                                 self.count_per_class_array, self.feature_position_array, 'AP')
 
         acpo_checked = self.findChild(QtWidgets.QRadioButton, 'acpoCheck')
         if acpo_checked.isChecked():
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, 'ACPO')
+                                                 self.count_per_class_array, self.feature_position_array, 'ACPO')
 
         spc_checked = self.findChild(QtWidgets.QRadioButton, 'spcCheck')
         if spc_checked.isChecked():
@@ -222,23 +241,25 @@ class Ui(QtWidgets.QMainWindow):
                 return
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, 'SPCP')
+                                                 self.count_per_class_array, self.feature_position_array, 'SPCP')
 
         glcs_checked = self.findChild(QtWidgets.QRadioButton, 'glcsCheck')
         if glcs_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-        # self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-        #                                 self.count_per_class_array)
+            self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
+                                                 self.sample_count,
+                                                 self.count_per_class_array, self.feature_position_array, 'GLCSP')
 
-        glcst_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
-        if glcst_checked.isChecked():
+        glcs_opt_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
+        if glcs_opt_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-            # self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-            #                                 self.count_per_class_array)
+            self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
+                                                 self.sample_count,
+                                                 self.count_per_class_array, self.feature_position_array, 'GLCSP_OPT')
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         self.plot_layout.addWidget(self.plot_widget)

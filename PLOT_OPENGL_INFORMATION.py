@@ -10,6 +10,8 @@ import PCP
 import ACP
 import SPCP
 import DICP
+import GLCSPTEST
+import GLCSP_OPT
 
 
 class getPlotInfo:
@@ -62,3 +64,15 @@ class getPlotInfo:
                                          count_per_class_array)
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = dicp_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = dicp_info.getAxesVertices()
+
+        elif plot_type == 'GLCSP':
+            glcsp_info = GLCSPTEST.getGLCSPInfo(dataframe, class_count, feature_count, sample_count,
+                                         count_per_class_array)
+            self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = glcsp_info.getClassVertices()
+            self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = glcsp_info.getAxesVertices()
+
+        elif plot_type == 'GLCSP_OPT':
+            glcsp_opt_info = GLCSP_OPT.getGLCSP_OPTInfo(dataframe, class_count, feature_count, sample_count,
+                                         count_per_class_array)
+            self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = glcsp_opt_info.getClassVertices()
+            self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = glcsp_opt_info.getAxesVertices()

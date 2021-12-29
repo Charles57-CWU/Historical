@@ -7,18 +7,18 @@ from PyQt5.QtGui import QPainter, QColor, QFont, QFontMetricsF
 import PLOT_OPENGL_INFORMATION
 
 
-def drawPCPLabels(painter, feature_count, width, height, fm):
+def drawPCPLabels(painter, feature_count, width, height, fm, feature_positions):
     x_min = 0.1 * width
     x_max = width - x_min
     x_pos_array = np.linspace(x_min, x_max, feature_count)
 
     for i in range(feature_count):
-        marker = 'X' + str(i + 1)
+        marker = 'X' + str(feature_positions[i])
         x_offset = fm.boundingRect(marker).width() / 2
         painter.drawText(x_pos_array[i] - x_offset, height - (height * 0.1) + 20, marker)
 
 
-def drawSPCLabels(painter, feature_count, width, height, fm):
+def drawSPCLabels(painter, feature_count, width, height, fm, feature_positions):
     x_min = 0.1 * width
     x_max = width - x_min
     vert_pos_array = np.linspace(x_min, x_max, int(feature_count / 2) + 1)
@@ -27,11 +27,11 @@ def drawSPCLabels(painter, feature_count, width, height, fm):
     j = 2
     for i in range(int(feature_count / 2)):
         # create the vertical markers
-        y_marker = 'X' + str(j)
+        y_marker = 'X' + str(feature_positions[j - 1])
         x_offset_vertical = fm.boundingRect(y_marker).width() / 2
         painter.drawText(vert_pos_array[i] - x_offset_vertical, height * 0.1 - 10, y_marker)
         # create the horizontal markers
-        x_marker = 'X' + str(j - 1)
+        x_marker = 'X' + str(feature_positions[j - 2])
         x_offset_horizontal = fm.boundingRect(x_marker).width() / 2
         painter.drawText(horiz_pos_array[j - 1] - x_offset_horizontal, height - (height * 0.1) + 20, x_marker)
 
@@ -43,7 +43,7 @@ class makePlot(QOpenGLWidget):
     height = 600
 
     def __init__(self, dataframe, class_count, feature_count, sample_count,
-                 count_per_class_array, plot_type, parent=None):
+                 count_per_class_array, feature_positions, plot_type, parent=None):
         super(makePlot, self).__init__(parent)
 
         # initialize variables
@@ -63,6 +63,8 @@ class makePlot(QOpenGLWidget):
         self.axes_vertex_count = None
         self.axes_count = None
         self.plot_axes = True
+        self.feature_positions = feature_positions
+
 
         # get plot information
         if self.plot_type:
@@ -175,14 +177,14 @@ class makePlot(QOpenGLWidget):
 
             # center and paint the plot markers
             if self.plot_type == 'PCP':
-                drawPCPLabels(painter, self.feature_count, self.width, self.height, fm)
+                drawPCPLabels(painter, self.feature_count, self.width, self.height, fm, self.feature_positions)
                 # center and paint the title
                 title = 'Parallel Coordinate Plot'
                 x_title_offset = fm.boundingRect(title).width() / 2
                 painter.drawText(self.width / 2 - x_title_offset, 40, title)
 
             elif self.plot_type == 'SPCP':
-                drawSPCLabels(painter, self.feature_count, self.width, self.height, fm)
+                drawSPCLabels(painter, self.feature_count, self.width, self.height, fm, self.feature_positions)
                 title = 'Shifted Paired Coordinate Plot'
                 x_title_offset = fm.boundingRect(title).width() / 2
                 painter.drawText(self.width / 2 - x_title_offset, 20, title)
