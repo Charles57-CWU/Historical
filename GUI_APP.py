@@ -7,6 +7,7 @@ School: Central Washington University
 """
 import numpy as np
 from PyQt5 import QtWidgets
+from PyQt5 import QtGui
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 import sys
@@ -33,6 +34,7 @@ class Ui(QtWidgets.QMainWindow):
         self.plot_type = None
         self.plot_layout = None
         self.class_table = None
+        self.feature_table = self.findChild(QtWidgets.QTableWidget, 'featureTable')
         self.warnings = WARNINGS.getWarning()
         self.colors = COLORS.getColors()
         self.class_count = None
@@ -43,6 +45,7 @@ class Ui(QtWidgets.QMainWindow):
         self.index_starts = None
         self.vertex_count = None
         self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, self.plot_type)
+        self.feature_table.__class__.dropEvent = self.featureSwap
 
         # exit button
         self.exit_button_pressed = self.findChild(QtWidgets.QPushButton, 'exitButton')
@@ -71,7 +74,7 @@ class Ui(QtWidgets.QMainWindow):
 
     # upload dataset
     def uploadDataset(self):
-        #if self.plot_layout:
+        # if self.plot_layout:
         #    self.plot_layout.removeWidget(self.plot_widget)
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File')
 
@@ -141,6 +144,35 @@ class Ui(QtWidgets.QMainWindow):
             self.class_table.setItem(counter, 0, item)
             counter += 1
 
+        self.feature_table.setRowCount(self.feature_count)
+        self.feature_table.setColumnCount(1)
+        self.feature_table.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem('Feature'))
+        # table properties
+        self.feature_table.setDragEnabled(True)
+        self.feature_table.setAcceptDrops(True)
+        self.feature_table.setDropIndicatorShown(True)
+        self.feature_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        # table data
+        header = self.feature_table.horizontalHeader()
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        counter = 0
+        for ele in feature_names_array:
+            item = QtWidgets.QTableWidgetItem(str(ele))
+            self.feature_table.setItem(counter, 0, item)
+            counter += 1
+
+    def featureSwap(self, event):
+        moved_from = self.feature_table.currentRow()
+        from_item = self.feature_table.item(moved_from, 0).text()
+        moved_to = self.feature_table.rowAt(event.pos().y())
+        to_item = self.feature_table.item(moved_to, 0).text()
+
+        self.feature_table.item(moved_from, 0).setText(to_item)
+        self.feature_table.item(moved_to, 0).setText(from_item)
+
+        event.accept()
+
     # exit the app
     def exitApp(self):
         print("Exit pressed")
@@ -197,16 +229,16 @@ class Ui(QtWidgets.QMainWindow):
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-           # self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-             #                                 self.count_per_class_array)
+        # self.plot_widget = GLCSP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+        #                                 self.count_per_class_array)
 
         glcst_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
         if glcst_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
-            #self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
-              #                                 self.count_per_class_array)
+            # self.plot_widget = GLCSTP.makePlot(self.dataframe, self.class_count, self.feature_count, self.sample_count,
+            #                                 self.count_per_class_array)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         self.plot_layout.addWidget(self.plot_widget)

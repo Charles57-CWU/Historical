@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1366</width>
-    <height>789</height>
+    <width>1920</width>
+    <height>1067</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="exitButton">
     <property name="geometry">
      <rect>
-      <x>940</x>
-      <y>700</y>
+      <x>1770</x>
+      <y>980</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -30,92 +30,11 @@
    <widget class="QTextBrowser" name="attributeBrowser">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>50</y>
-      <width>251</width>
-      <height>331</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="makePlotButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>620</y>
-      <width>201</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Generate Plot</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="pcpCheck">
-    <property name="geometry">
-     <rect>
       <x>20</x>
       <y>380</y>
-      <width>141</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Parallel Coordinate Plot</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="spcCheck">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>410</y>
-      <width>171</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Shifted Paired Coordinate Plot</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="dicCheck">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>440</y>
-      <width>171</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Dynamic In-line Coordinate Plot</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="glcsCheck">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>470</y>
       <width>201</width>
-      <height>17</height>
+      <height>291</height>
      </rect>
-    </property>
-    <property name="text">
-     <string>General Line Scaffold Coordinate Plot</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="glcstCheck">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>500</y>
-      <width>191</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>GLC w/ Scaffold - Angle Optimized</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="datasetInfoBrowser">
@@ -123,7 +42,7 @@
      <rect>
       <x>20</x>
       <y>110</y>
-      <width>191</width>
+      <width>201</width>
       <height>251</height>
      </rect>
     </property>
@@ -131,9 +50,9 @@
    <widget class="QPushButton" name="uploadButton">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>30</x>
       <y>50</y>
-      <width>191</width>
+      <width>181</width>
       <height>51</height>
      </rect>
     </property>
@@ -144,8 +63,8 @@
    <widget class="QPushButton" name="testButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>720</y>
+      <x>20</x>
+      <y>10</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -157,94 +76,255 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>50</y>
-      <width>831</width>
-      <height>631</height>
+      <x>250</x>
+      <y>30</y>
+      <width>1341</width>
+      <height>901</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="plotDisplay"/>
    </widget>
-   <widget class="QRadioButton" name="apCheck">
+   <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>530</y>
-      <width>141</width>
-      <height>17</height>
+      <x>1620</x>
+      <y>540</y>
+      <width>261</width>
+      <height>391</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Angled Coordinate Plot</string>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
     </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <widget class="QTableWidget" name="classTable">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>201</width>
+       <height>281</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="updatePlotButton">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>320</y>
+       <width>121</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Update Plot</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="axesCheck">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>350</y>
+       <width>81</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Show Axes</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="markerCheck">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>320</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Show Markers</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
-   <widget class="QTableWidget" name="classTable">
+   <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>450</y>
-      <width>256</width>
-      <height>192</height>
+      <x>1620</x>
+      <y>30</y>
+      <width>261</width>
+      <height>371</height>
      </rect>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+    <widget class="QPushButton" name="replotFeatureButton">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>320</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Replot Features</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="featureTable">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>201</width>
+       <height>301</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
-   <widget class="QCheckBox" name="markerCheck">
+   <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>390</y>
-      <width>91</width>
-      <height>17</height>
+      <x>10</x>
+      <y>690</y>
+      <width>221</width>
+      <height>291</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Show Markers</string>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
     </property>
-    <property name="checked">
-     <bool>true</bool>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
-   </widget>
-   <widget class="QCheckBox" name="axesCheck">
-    <property name="geometry">
-     <rect>
-      <x>1090</x>
-      <y>420</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
+    <property name="lineWidth">
+     <number>2</number>
     </property>
-    <property name="text">
-     <string>Show Axes</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="updatePlotButton">
-    <property name="geometry">
-     <rect>
-      <x>1140</x>
-      <y>650</y>
-      <width>161</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Update Plot</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="acpoCheck">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>560</y>
-      <width>191</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>ACP - Length Optimized</string>
-    </property>
+    <widget class="QRadioButton" name="pcpCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>141</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Parallel Coordinate Plot</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="spcCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>171</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Shifted Paired Coordinate Plot</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="dicCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>171</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Dynamic In-line Coordinate Plot</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="makePlotButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>201</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Generate Plot</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="glcsCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>201</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>General Line Scaffold Coordinate Plot</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="glcstCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>191</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>GLC w/ Scaffold - Angle Optimized</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="apCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>141</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Angled Coordinate Plot</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="acpoCheck">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>191</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ACP - Length Optimized</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -252,7 +332,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1366</width>
+     <width>1920</width>
      <height>21</height>
     </rect>
    </property>
