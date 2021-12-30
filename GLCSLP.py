@@ -1,5 +1,5 @@
 """
-GLCSP.py holds the information to render a parallel coordinate plot
+GLCSLP.py holds the information to render a parallel coordinate plot
 
 Author: Charles Recaido
 Program: MSc in Computational Science

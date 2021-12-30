@@ -18,23 +18,24 @@ class getGLCSP_OPTInfo:
     def getClassVertices(self):
         df = self.dataframe.copy()
 
-        angle_array = [-90, -90, -90, -45, -45, -45, -45, -45, -45]
+        space = 1.6 / (int(self.feature_count / 2) + 1)
+        for i in range(self.feature_count):
+            scaler = MinMaxScaler((0, space))
+            df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
+
+        angle_array = [0, 90, -45, -45, 0, 0, 0, 0, 0]
         j = 0
         for i in range(0, self.feature_count, 2):
             xy_temp = np.asarray([df[df.columns[i]], df[df.columns[i + 1]]])
-            theta = np.radians(angle_array[j])
+            theta = np.deg2rad(angle_array[j])
             j += 1
-            rotation_matrix = np.array([[np.cos(theta), -np.sin(theta)],
-                                        [np.sin(theta), np.cos(theta)]])
+            rotation_matrix = np.array([[np.cos(theta), np.sin(theta)],
+                                        [-np.sin(theta), np.cos(theta)]])
 
             xy_temp = np.matmul(rotation_matrix, xy_temp)
             df[df.columns[i]] = xy_temp[0]
             df[df.columns[i + 1]] = xy_temp[1]
 
-        space = 1.6 / (int(self.feature_count / 2) + 1)
-        for i in range(self.feature_count):
-            scaler = MinMaxScaler((0, space))
-            df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
 
         # get xy_coord [[0,0],[2,0]]
         xy_coord = df.to_numpy()

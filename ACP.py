@@ -17,8 +17,17 @@ class getAPInfo:
 
     def getClassVertices(self):
         df = self.dataframe.copy()
+        """
         scaler = MinMaxScaler((0, 90))
         df[:] = scaler.fit_transform(df[:])
+        """
+
+        # scale attributes to fit to graphic coordinate system -0.8 to 0.8
+        scaler = MinMaxScaler((0, 90))
+        # df[:] = scaler.fit_transform(df[:])
+        tmp = df.to_numpy().reshape(-1, 1)
+        scaled = scaler.fit_transform(tmp).reshape(len(df), self.feature_count)
+        df.loc[:] = scaled
 
         # get y_coord
         y_coord = df.to_numpy()

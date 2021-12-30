@@ -189,6 +189,9 @@ class Ui(QtWidgets.QMainWindow):
         event.accept()
 
     def replotFeatures(self):
+        if not self.dataset:
+            self.warnings.noDataWarning()
+            return
         self.dataframe = self.dataframe[self.feature_names_array]
         self.createPlot()
 
@@ -203,7 +206,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_layout.removeWidget(self.plot_widget)
 
         # check for data before generating plot
-        if self.dataset == '':
+        if not self.dataset:
             self.warnings.noDataWarning()
             return
 
@@ -265,6 +268,9 @@ class Ui(QtWidgets.QMainWindow):
         self.plot_layout.addWidget(self.plot_widget)
 
     def updatePlot(self):
+        if not self.dataset:
+            self.warnings.noDataWarning()
+            return
 
         if self.show_axes.checkState() == Qt.CheckState.Unchecked:
             self.plot_widget.plot_axes = False

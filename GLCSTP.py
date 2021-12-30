@@ -1,5 +1,5 @@
 """
-GLCSP.py holds the information to render a general line coordinate w/ scaffold plot
+GLCSTP.py holds the information to render a general line coordinate w/ scaffold plot
 
 Author: Charles Recaido
 Program: MSc in Computational Science

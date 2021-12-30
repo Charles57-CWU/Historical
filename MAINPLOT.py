@@ -64,7 +64,13 @@ class makePlot(QOpenGLWidget):
         self.axes_count = None
         self.plot_axes = True
         self.feature_positions = feature_positions
-
+        # marker variables
+        self.marker_vertices = None
+        self.marker_colors = None
+        self.marker_index_starts = None
+        self.marker_vertex_count = None
+        self.marker_count = None
+        self.plot_markers = True
 
         # get plot information
         if self.plot_type:
@@ -105,6 +111,20 @@ class makePlot(QOpenGLWidget):
             self.axes_vertex_count = ini_plot_info.axes_vertex_count
             # number of axis to plot
             self.axes_count = ini_plot_info.axes_count
+            """
+            establish markers to plot
+            markers can be turned on/off later on
+            """
+            # marker information in (x, y) cartesian
+            self.marker_vertices = np.asarray(ini_plot_info.marker_vertices, dtype='float32')
+            # color at each vertex in (R, G, B) - Note: RGB is scaled between 0 and 1
+            self.marker_color = np.asarray(ini_plot_info.marker_colors, dtype='float32')
+            # gets the starting index for each marker to plot
+            self.marker_index_starts = ini_plot_info.marker_index_starts
+            # gets the number of vertices to plot per marker
+            self.marker_vertex_count = ini_plot_info.marker_vertex_count
+            # number of markers to plot
+            self.marker_count = ini_plot_info.marker_count
             """
             label information
             """
@@ -164,6 +184,28 @@ class makePlot(QOpenGLWidget):
                 glDisableClientState(GL_COLOR_ARRAY)
                 vbo_axes_vertices.unbind()
                 vbo_axes_color.unbind()
+
+            # ===========================DRAW PLOT MARKERS=========================================
+            if self.plot_markers:
+                # bind the buffers
+                vbo_marker_vertices = glvbo.VBO(self.marker_vertices)
+                vbo_marker_vertices.bind()
+                glEnableClientState(GL_VERTEX_ARRAY)
+                glVertexPointer(2, GL_FLOAT, 0, vbo_marker_vertices)
+
+                vbo_marker_color = glvbo.VBO(self.marker_color)
+                vbo_marker_color.bind()
+                glEnableClientState(GL_COLOR_ARRAY)
+                glColorPointer(3, GL_FLOAT, 0, vbo_marker_color)
+
+                # draw axes
+                glMultiDrawArrays(GL_TRIANGLES, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
+
+                # unbind buffers
+                glDisableClientState(GL_VERTEX_ARRAY)
+                glDisableClientState(GL_COLOR_ARRAY)
+                vbo_marker_vertices.unbind()
+                vbo_marker_color.unbind()
 
             # ===========================DRAW PLOT TEXT=========================================
             # paint plot title and dimension markers
