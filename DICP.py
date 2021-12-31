@@ -55,7 +55,7 @@ class getDICPInfo:
 
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
-    def getMarkerVertices(self):
+    def getMarkerVertices(self, scaffold_axis):
         return None
 
     def getLabelInformation(self):

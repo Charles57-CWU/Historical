@@ -70,7 +70,7 @@ class makePlot(QOpenGLWidget):
         self.marker_index_starts = None
         self.marker_vertex_count = None
         self.marker_count = None
-        self.plot_markers = True
+        self.plot_markers = False
 
         # get plot information
         if self.plot_type:
@@ -186,7 +186,8 @@ class makePlot(QOpenGLWidget):
                 vbo_axes_color.unbind()
 
             # ===========================DRAW PLOT MARKERS=========================================
-            if self.plot_markers:
+            if self.plot_markers and self.plot_type != 'PCP':
+
                 # bind the buffers
                 vbo_marker_vertices = glvbo.VBO(self.marker_vertices)
                 vbo_marker_vertices.bind()

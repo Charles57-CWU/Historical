@@ -55,6 +55,8 @@ class getPlotInfo:
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = ap_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = ap_info.getAxesVertices()
             self.title = ap_info.getLabelInformation()
+            self.marker_vertices, self.marker_colors, self.marker_index_starts, self.marker_vertex_count, self.marker_count = ap_info.getMarkerVertices(
+                self.class_vertices)
 
         elif plot_type == 'SPCP':
             spcp_info = SPCP.getSPCPInfo(dataframe, class_count, feature_count, sample_count,
@@ -80,3 +82,5 @@ class getPlotInfo:
                                          count_per_class_array)
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = glcsp_opt_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = glcsp_opt_info.getAxesVertices()
+            self.marker_vertices, self.marker_colors, self.marker_index_starts, self.marker_vertex_count, self.marker_count = glcsp_opt_info.getMarkerVertices(
+                self.class_vertices)
