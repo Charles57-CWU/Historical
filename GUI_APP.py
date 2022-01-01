@@ -70,6 +70,7 @@ class Ui(QtWidgets.QMainWindow):
         self.update_plot_button_pressed.clicked.connect(self.updatePlot)
 
         self.show_axes = self.findChild(QtWidgets.QCheckBox, 'axesCheck')
+        self.show_markers = self.findChild(QtWidgets.QCheckBox, 'markerCheck')
 
         self.update_feature_button_pressed = self.findChild(QtWidgets.QPushButton, 'replotFeatureButton')
         self.update_feature_button_pressed.clicked.connect(self.replotFeatures)
@@ -276,6 +277,10 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget.plot_axes = False
         else:
             self.plot_widget.plot_axes = True
+        if self.show_markers.checkState() == Qt.CheckState.Unchecked:
+            self.plot_widget.plot_markers = False
+        else:
+            self.plot_widget.plot_markers = True
 
         classes_to_display = []
         for i in range(self.class_count):

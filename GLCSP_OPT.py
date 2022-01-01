@@ -113,7 +113,7 @@ class getGLCSP_OPTInfo:
         arrowhead_color_array = np.tile([0, 0, 0], reps=(triangle_array.shape[0], 1))
 
         index_starts = np.arange(0, self.sample_count * int(self.feature_count / 2) * 3, 3)
-        vertex_count = np.repeat(int(self.feature_count / 2 + 1), self.sample_count * int(self.feature_count / 2))
+        vertex_count = np.repeat(3, self.sample_count * int(self.feature_count / 2))
         triangle_count = self.sample_count * int(self.feature_count / 2)
 
         return triangle_array, arrowhead_color_array, index_starts, vertex_count, triangle_count

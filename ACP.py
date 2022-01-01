@@ -104,7 +104,7 @@ class getAPInfo:
         arrowhead_color_array = np.tile([0, 0, 0], reps=(triangle_array.shape[0], 1))
 
         index_starts = np.arange(0, self.sample_count * self.feature_count * 3, 3)
-        vertex_count = np.repeat(self.feature_count + 1, self.sample_count * self.feature_count)
+        vertex_count = np.repeat(3, self.sample_count * self.feature_count)
         triangle_count = self.sample_count * self.feature_count
 
         return triangle_array, arrowhead_color_array, index_starts, vertex_count, triangle_count

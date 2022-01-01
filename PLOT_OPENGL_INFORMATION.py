@@ -63,12 +63,16 @@ class getPlotInfo:
                                          count_per_class_array)
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = spcp_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = spcp_info.getAxesVertices()
+            self.marker_vertices, self.marker_colors, self.marker_index_starts, self.marker_vertex_count, self.marker_count = spcp_info.getMarkerVertices(
+                self.class_vertices)
 
         elif plot_type == 'DICP':
             dicp_info = DICP.getDICPInfo(dataframe, class_count, feature_count, sample_count,
                                          count_per_class_array)
             self.class_vertices, self.class_colors, self.class_index_starts, self.class_vertex_count = dicp_info.getClassVertices()
             self.axes_vertices, self.axes_colors, self.axes_index_starts, self.axes_vertex_count, self.axes_count = dicp_info.getAxesVertices()
+            self.marker_vertices, self.marker_colors, self.marker_index_starts, self.marker_vertex_count, self.marker_count = dicp_info.getMarkerVertices(
+                self.class_vertices)
 
         elif plot_type == 'GLCSP':
             glcsp_info = GLCSP.getGLCSPInfo(dataframe, class_count, feature_count, sample_count,

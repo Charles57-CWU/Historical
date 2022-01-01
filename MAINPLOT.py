@@ -70,7 +70,7 @@ class makePlot(QOpenGLWidget):
         self.marker_index_starts = None
         self.marker_vertex_count = None
         self.marker_count = None
-        self.plot_markers = False
+        self.plot_markers = True
 
         # get plot information
         if self.plot_type:
@@ -134,6 +134,8 @@ class makePlot(QOpenGLWidget):
     def initializeGL(self):
         # make background white
         glClearColor(1, 1, 1, 1)
+        glEnable(GL_PROGRAM_POINT_SIZE)
+        glPointSize(5)
 
     def resizeGL(self, w, h):
         self.width, self.height = w, h
@@ -200,7 +202,10 @@ class makePlot(QOpenGLWidget):
                 glColorPointer(3, GL_FLOAT, 0, vbo_marker_color)
 
                 # draw axes
-                glMultiDrawArrays(GL_TRIANGLES, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
+                if self.plot_type == 'AP' or self.plot_type == 'GLCSP' or self.plot_type == 'GLCSP_OPT':
+                    glMultiDrawArrays(GL_TRIANGLES, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
+                if self.plot_type == 'DICP' or self.plot_type == 'SPCP':
+                    glMultiDrawArrays(GL_POINTS, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
 
                 # unbind buffers
                 glDisableClientState(GL_VERTEX_ARRAY)

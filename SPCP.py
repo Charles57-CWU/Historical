@@ -75,8 +75,15 @@ class getSPCPInfo:
 
         return axis_vertex_array, axis_color_array, axis_ind, axis_per_line, axes_count
 
-    def getMarkerVertices(self):
-        return None
+    def getMarkerVertices(self, scaffold_axis):
+        point_array = scaffold_axis
+        point_color_array = np.tile([0, 0, 0], reps=(point_array.shape[0], 1))
+
+        index_starts = np.arange(0, self.sample_count * (self.feature_count/2), 1)
+        vertex_count = np.repeat(1, self.sample_count * (self.feature_count/2))
+        point_count = self.sample_count * int(self.feature_count/2)
+        return point_array, point_color_array, index_starts, vertex_count, point_count
+
 
     def getLabelInformation(self):
         return None

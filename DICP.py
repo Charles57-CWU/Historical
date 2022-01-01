@@ -44,6 +44,7 @@ class getDICPInfo:
         data_plot_indices = np.arange(0, self.sample_count * int(self.feature_count / 2), int(self.feature_count / 2))
         data_vertices_per_line = np.repeat(int(self.feature_count / 2), self.sample_count)
 
+
         return xy_coord, color_array, data_plot_indices, data_vertices_per_line
 
     def getAxesVertices(self):
@@ -56,7 +57,13 @@ class getDICPInfo:
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
-        return None
+        point_array = scaffold_axis
+        point_color_array = np.tile([0, 0, 0], reps=(point_array.shape[0], 1))
+
+        index_starts = np.arange(0, self.sample_count * (self.feature_count/2), 1)
+        vertex_count = np.repeat(1, self.sample_count * (self.feature_count/2))
+        point_count = self.sample_count * int(self.feature_count/2)
+        return point_array, point_color_array, index_starts, vertex_count, point_count
 
     def getLabelInformation(self):
         return None
