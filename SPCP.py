@@ -18,14 +18,14 @@ class getSPCPInfo:
     def getClassVertices(self):
         df = self.dataframe.copy()
 
-        section_array = np.linspace(start=-0.8, stop=0.8, num=int(self.feature_count / 2) + 1)
+        section_array = np.linspace(start=0, stop=1, num=int(self.feature_count / 2) + 1)
 
         # scale attributes to fit to graphic coordinate system -0.8 to 0.8
 
         j = 0
         for i in range(self.feature_count):
             if i % 2 != 0:
-                scaler = MinMaxScaler((-0.8, 0.8))
+                scaler = MinMaxScaler((0, 1))
                 df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
             else:
                 scaler = MinMaxScaler((section_array[j], section_array[j + 1]))
@@ -53,14 +53,14 @@ class getSPCPInfo:
 
     def getAxesVertices(self):
         # add x-axis
-        axis_vertex_array = [[-0.8, -0.8], [0.8, -0.8]]
+        axis_vertex_array = [[0, 0], [1, 0]]
         # add y-axes
 
         new_count = int(self.feature_count / 2) + 1
 
-        x_coord_array = np.linspace(start=-0.8, stop=0.8, num=new_count)
-        y_coord_array_bottom = np.repeat(-0.8, new_count)
-        y_coord_array_top = np.repeat(0.8, new_count)
+        x_coord_array = np.linspace(start=0, stop=1, num=new_count)
+        y_coord_array_bottom = np.repeat(0, new_count)
+        y_coord_array_top = np.repeat(1, new_count)
 
         for i in range(new_count - 1):
             axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i]])

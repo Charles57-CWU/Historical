@@ -33,13 +33,13 @@ class getAPInfo:
         y_coord = df.to_numpy()
         y_coord = y_coord.ravel()
 
-        space = 1.6 / self.feature_count
-        scaffold_axis = np.asarray([[-0.8, -0.8]])
+        space = 1 / self.feature_count
+        scaffold_axis = np.asarray([[0, 0]])
 
         j = 0
         for i in range(1, self.sample_count * (self.feature_count + 1)):
             if i % (self.feature_count + 1) == 0:
-                scaffold_axis = np.append(scaffold_axis, [[-0.8, -0.8]], 0)
+                scaffold_axis = np.append(scaffold_axis, [[0, 0]], 0)
             else:
                 new_x = np.cos(np.deg2rad(y_coord[j])) * space
                 new_y = np.sin(np.deg2rad(y_coord[j])) * space
@@ -63,14 +63,14 @@ class getAPInfo:
 
     def getAxesVertices(self):
         axes_count = 2
-        axes_vertices = [[-0.8, -0.8], [-0.8, 0.8], [-0.8, -0.8], [0.8, -0.8]]
+        axes_vertices = [[0, 0], [0, 1], [0, 0], [1, 0]]
         axes_color = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
         axes_index_starts = [0, 2]
         axes_vertex_count = [2, 2]
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
-        arrowhead_size = 0.03
+        arrowhead_size = 0.01
         arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
         triangle_array = np.asarray([[0, 0]])
         for i in range(self.sample_count * int(self.feature_count + 1)):

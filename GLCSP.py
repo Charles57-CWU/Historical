@@ -18,7 +18,7 @@ class getGLCSPInfo:
     def getClassVertices(self):
         df = self.dataframe.copy()
 
-        space = 1.6 / (int(self.feature_count / 2) + 1)
+        space = 1 / (int(self.feature_count / 2) + 1)
         for i in range(self.feature_count):
             scaler = MinMaxScaler((0, space))
             df[df.columns[i]] = scaler.fit_transform(df[[df.columns[i]]])
@@ -31,9 +31,9 @@ class getGLCSPInfo:
         for i in range(self.sample_count * int(self.feature_count / 2 + 1)):
             if i % int(self.feature_count / 2 + 1) == 0:
                 if i == 0:
-                    scaffold_axis = np.asarray([[-0.8, -0.8]])
+                    scaffold_axis = np.asarray([[0, 0]])
                 else:
-                    scaffold_axis = np.append(scaffold_axis, [[-0.8, -0.8]], 0)
+                    scaffold_axis = np.append(scaffold_axis, [[0, 0]], 0)
             else:
                 scaffold_axis = np.append(scaffold_axis, [
                     [scaffold_axis[i - 1][0] + xy_coord[j][0], scaffold_axis[i - 1][1] + xy_coord[j][1]]], 0)
@@ -56,14 +56,14 @@ class getGLCSPInfo:
 
     def getAxesVertices(self):
         axes_count = 2
-        axes_vertices = [[-0.8, -0.8], [-0.8, 0.8], [-0.8, -0.8], [0.8, -0.8]]
+        axes_vertices = [[0, 0], [0, 1], [0, 0], [1, 0]]
         axes_color = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
         axes_index_starts = [0, 2]
         axes_vertex_count = [2, 2]
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
-        arrowhead_size = 0.03
+        arrowhead_size = 0.01
         arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
         triangle_array = np.asarray([[0, 0]])
         for i in range(self.sample_count * int(self.feature_count / 2 + 1)):

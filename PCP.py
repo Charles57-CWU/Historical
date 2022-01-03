@@ -19,7 +19,7 @@ class getPCPInfo:
         df = self.dataframe.copy()
 
         # scale attributes to fit to graphic coordinate system -0.8 to 0.8
-        scaler = MinMaxScaler((-0.8, 0.8))
+        scaler = MinMaxScaler((0, 1))
         # df[:] = scaler.fit_transform(df[:])
         tmp = df.to_numpy().reshape(-1, 1)
         scaled = scaler.fit_transform(tmp).reshape(len(df), self.feature_count)
@@ -27,7 +27,7 @@ class getPCPInfo:
 
         # change into 3 coordinate numpy vertex array ie: [[0, 0, 0], [1, 1, 1]]
         # get x_coord
-        x_coord_array = np.linspace(start=-0.8, stop=0.8, num=self.feature_count)
+        x_coord_array = np.linspace(start=0, stop=1, num=self.feature_count)
         x_coord = np.tile(x_coord_array, reps=self.sample_count)
 
         # get y_coord
@@ -56,9 +56,9 @@ class getPCPInfo:
         axis_vertex_array = [[0, 0]]
         # add y-axes
 
-        x_coord_array = np.linspace(start=-0.8, stop=0.8, num=self.feature_count)
-        y_coord_array_bottom = np.repeat(-0.8, self.feature_count)
-        y_coord_array_top = np.repeat(0.8, self.feature_count)
+        x_coord_array = np.linspace(start=0, stop=1, num=self.feature_count)
+        y_coord_array_bottom = np.repeat(0, self.feature_count)
+        y_coord_array_top = np.repeat(1, self.feature_count)
 
         for i in range(self.feature_count):
             axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i]])

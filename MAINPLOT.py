@@ -134,6 +134,9 @@ class makePlot(QOpenGLWidget):
     def initializeGL(self):
         # make background white
         glClearColor(1, 1, 1, 1)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-0.125, 1.125, -0.125, 1.125, 0, 1)
         glEnable(GL_PROGRAM_POINT_SIZE)
         glPointSize(5)
 

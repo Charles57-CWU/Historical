@@ -22,7 +22,7 @@ class getDICPInfo:
             df[df.columns[i]] += df[df.columns[i - 2]]
 
         # scale attributes to fit to graphic coordinate system -0.8 to 0.8
-        scaler = MinMaxScaler((-0.8, 0.8))
+        scaler = MinMaxScaler((0, 1))
         tmp = df.to_numpy().reshape(-1, 1)
         scaled = scaler.fit_transform(tmp).reshape(len(df), self.feature_count)
         df.loc[:] = scaled
@@ -44,12 +44,11 @@ class getDICPInfo:
         data_plot_indices = np.arange(0, self.sample_count * int(self.feature_count / 2), int(self.feature_count / 2))
         data_vertices_per_line = np.repeat(int(self.feature_count / 2), self.sample_count)
 
-
         return xy_coord, color_array, data_plot_indices, data_vertices_per_line
 
     def getAxesVertices(self):
         axes_count = 2
-        axes_vertices = [[-0.8, -0.8], [-0.8, 0.8], [-0.8, -0.8], [0.8, -0.8]]
+        axes_vertices = [[0, 0], [0, 1], [0, 0], [1, 0]]
         axes_color = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
         axes_index_starts = [0, 2]
         axes_vertex_count = [2, 2]
