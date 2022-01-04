@@ -21,6 +21,20 @@ class getSPCPInfo:
         section_array = np.linspace(start=0, stop=1, num=int(self.feature_count / 2) + 1)
 
         # scale attributes to fit to graphic coordinate system -0.8 to 0.8
+        scaler = MinMaxScaler((0, 1))
+        k = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        df[:] = scaler.fit_transform(df[:])
+
+        i = 0
+        for col in df.columns:
+            j = 0
+            for ele in df[col]:
+                if k[i] <= ele:
+                    print('old ' + str(df.iat[j, i]))
+                    df.iat[j, i] += 0.1
+                    print('new ' + str(df.iat[j, i]))
+                j += 1
+            i += 1
 
         j = 0
         for i in range(self.feature_count):
@@ -54,6 +68,12 @@ class getSPCPInfo:
     def getAxesVertices(self):
         # add x-axis
         axis_vertex_array = [[0, 0], [1, 0]]
+        j = 0.1
+        for i in range(10):
+            axis_vertex_array.append([0, j])
+            axis_vertex_array.append([1, j])
+            j += 0.1
+        print(axis_vertex_array)
         # add y-axes
 
         new_count = int(self.feature_count / 2) + 1
@@ -63,15 +83,19 @@ class getSPCPInfo:
         y_coord_array_top = np.repeat(1, new_count)
 
         for i in range(new_count - 1):
+            print([x_coord_array[i], y_coord_array_bottom[i]])
             axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i]])
             axis_vertex_array.append([x_coord_array[i], y_coord_array_top[i]])
+        print(np.shape(axis_vertex_array))
+        axis_color_array = np.tile([0, 0, 0], reps=(int(self.feature_count / 2 + 11) * 2, 1))
+        print(np.shape(axis_color_array))
 
-        axis_color_array = np.tile([0, 0, 0], reps=(new_count * 2 + 1, 1))
-
-        axis_ind = np.arange(0, (self.feature_count + 1) * 2, 2)
-        axis_per_line = np.repeat(2, self.feature_count + 1)
-
-        axes_count = self.feature_count + 1
+        axis_ind = np.arange(0, int(self.feature_count/2 + 11) * 2, 2)
+        print(np.shape(axis_ind))
+        axis_per_line = np.repeat(2, int(self.feature_count/2 + 11))
+        print(np.shape(axis_per_line))
+        axes_count = int(self.feature_count / 2) + 11
+        print(axes_count)
 
         return axis_vertex_array, axis_color_array, axis_ind, axis_per_line, axes_count
 

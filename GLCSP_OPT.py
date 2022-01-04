@@ -36,7 +36,6 @@ class getGLCSP_OPTInfo:
             df[df.columns[i]] = xy_temp[0]
             df[df.columns[i + 1]] = xy_temp[1]
 
-
         # get xy_coord [[0,0],[2,0]]
         xy_coord = df.to_numpy()
         xy_coord = xy_coord.ravel()

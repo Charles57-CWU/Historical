@@ -18,6 +18,21 @@ class getGLCSPInfo:
     def getClassVertices(self):
         df = self.dataframe.copy()
 
+        scaler = MinMaxScaler((0, 1))
+        k = [0.4, 0.6, 0, 0.2, 0, 0, 0, 0, 0, 0, 0]
+        df[:] = scaler.fit_transform(df[:])
+
+        i = 0
+        for col in df.columns:
+            j = 0
+            for ele in df[col]:
+                if k[i] <= ele:
+                    print('old ' + str(df.iat[j, i]))
+                    df.iat[j, i] += 20
+                    print('new ' + str(df.iat[j, i]))
+                j += 1
+            i += 1
+
         space = 1 / (int(self.feature_count / 2) + 1)
         for i in range(self.feature_count):
             scaler = MinMaxScaler((0, space))
@@ -58,8 +73,8 @@ class getGLCSPInfo:
         axes_count = 2
         axes_vertices = [[0, 0], [0, 1], [0, 0], [1, 0]]
         axes_color = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
-        axes_index_starts = [0, 2]
-        axes_vertex_count = [2, 2]
+        axes_index_starts = [0, 2, 4]
+        axes_vertex_count = [2, 2, 2]
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
