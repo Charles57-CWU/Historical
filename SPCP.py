@@ -30,9 +30,7 @@ class getSPCPInfo:
             j = 0
             for ele in df[col]:
                 if k[i] <= ele:
-                    print('old ' + str(df.iat[j, i]))
                     df.iat[j, i] += 0.1
-                    print('new ' + str(df.iat[j, i]))
                 j += 1
             i += 1
 
@@ -73,7 +71,6 @@ class getSPCPInfo:
             axis_vertex_array.append([0, j])
             axis_vertex_array.append([1, j])
             j += 0.1
-        print(axis_vertex_array)
         # add y-axes
 
         new_count = int(self.feature_count / 2) + 1
@@ -86,16 +83,11 @@ class getSPCPInfo:
             print([x_coord_array[i], y_coord_array_bottom[i]])
             axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i]])
             axis_vertex_array.append([x_coord_array[i], y_coord_array_top[i]])
-        print(np.shape(axis_vertex_array))
         axis_color_array = np.tile([0, 0, 0], reps=(int(self.feature_count / 2 + 11) * 2, 1))
-        print(np.shape(axis_color_array))
 
         axis_ind = np.arange(0, int(self.feature_count/2 + 11) * 2, 2)
-        print(np.shape(axis_ind))
         axis_per_line = np.repeat(2, int(self.feature_count/2 + 11))
-        print(np.shape(axis_per_line))
         axes_count = int(self.feature_count / 2) + 11
-        print(axes_count)
 
         return axis_vertex_array, axis_color_array, axis_ind, axis_per_line, axes_count
 
@@ -107,7 +99,6 @@ class getSPCPInfo:
         vertex_count = np.repeat(1, self.sample_count * (self.feature_count/2))
         point_count = self.sample_count * int(self.feature_count/2)
         return point_array, point_color_array, index_starts, vertex_count, point_count
-
 
     def getLabelInformation(self):
         return None

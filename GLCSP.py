@@ -19,7 +19,7 @@ class getGLCSPInfo:
         df = self.dataframe.copy()
 
         scaler = MinMaxScaler((0, 1))
-        k = [0.4, 0.6, 0, 0.2, 0, 0, 0, 0, 0, 0, 0]
+        k = [0.246, 0.6875, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         df[:] = scaler.fit_transform(df[:])
 
         i = 0
@@ -27,9 +27,7 @@ class getGLCSPInfo:
             j = 0
             for ele in df[col]:
                 if k[i] <= ele:
-                    print('old ' + str(df.iat[j, i]))
-                    df.iat[j, i] += 20
-                    print('new ' + str(df.iat[j, i]))
+                    df.iat[j, i] += 0
                 j += 1
             i += 1
 
