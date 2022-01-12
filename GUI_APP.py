@@ -27,7 +27,7 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         # load Ui from ui File made in QTDesigner
         super(Ui, self).__init__()
-        uic.loadUi('visualizationGuiNew.ui', self)
+        uic.loadUi('visualizationGui.ui', self)
 
         # general variables
         self.dataset = None
