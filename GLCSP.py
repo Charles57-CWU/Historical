@@ -19,7 +19,7 @@ class getGLCSPInfo:
         df = self.dataframe.copy()
 
         scaler = MinMaxScaler((0, 1))
-        k = [0.246, 0.6875, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        k = [0, 0.4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         df[:] = scaler.fit_transform(df[:])
 
         i = 0
@@ -27,7 +27,7 @@ class getGLCSPInfo:
             j = 0
             for ele in df[col]:
                 if k[i] <= ele:
-                    df.iat[j, i] += 0
+                    df.iat[j, i] += 500
                 j += 1
             i += 1
 
@@ -76,6 +76,7 @@ class getGLCSPInfo:
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
+
         arrowhead_size = 0.01
         arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
         triangle_array = np.asarray([[0, 0]])
@@ -115,6 +116,23 @@ class getGLCSPInfo:
         triangle_count = self.sample_count * int(self.feature_count / 2)
 
         return triangle_array, arrowhead_color_array, index_starts, vertex_count, triangle_count
+        """
+        point_array = scaffold_axis
+        print(point_array)
+        new_point_array = ([[0, 0]])
+        for i in range(np.shape(point_array)[1]):
+            if i % int(self.feature_count/2 + 1) == 0:
+                new_point_array.append([point_array[i]])
+        print(new_point_array)
+
+        point_color_array = np.tile([0, 0, 0], reps=(point_array.shape[0], 1))
+
+        index_starts = np.arange(0, self.sample_count * (self.feature_count/2), 1)
+        vertex_count = np.repeat(1, self.sample_count * (self.feature_count/2))
+        point_count = self.sample_count * int(self.feature_count/2)
+        return point_array, point_color_array, index_starts, vertex_count, point_count
+        """
+
 
     def getLabelInformation(self):
         title = 'Angled Coordinate Plot'

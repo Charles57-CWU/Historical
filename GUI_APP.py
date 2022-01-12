@@ -21,13 +21,13 @@ import DATA
 
 # plot information
 import MAINPLOT
-
+import SHOW_HIDE_CLASSES
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         # load Ui from ui File made in QTDesigner
         super(Ui, self).__init__()
-        uic.loadUi('visualizationGui.ui', self)
+        uic.loadUi('visualizationGuiNew.ui', self)
 
         # general variables
         self.dataset = None
@@ -41,6 +41,7 @@ class Ui(QtWidgets.QMainWindow):
         self.feature_count = None
         self.sample_count = None
         self.count_per_class_array = None
+        self.class_to_plot = None
         self.dataframe = None
         self.index_starts = None
         self.vertex_count = None
@@ -48,6 +49,8 @@ class Ui(QtWidgets.QMainWindow):
         self.feature_table.__class__.dropEvent = self.featureSwap
         self.feature_position_array = None
         self.feature_names_array = None
+
+        self.is_placeholder = True
 
         # exit button
         self.exit_button_pressed = self.findChild(QtWidgets.QPushButton, 'exitButton')
@@ -95,6 +98,8 @@ class Ui(QtWidgets.QMainWindow):
 
         # class information
         self.class_count = self.dataset.class_count
+        self.class_to_plot = np.repeat(1, self.class_count)
+        print(self.class_to_plot)
         class_names_array = self.dataset.class_names_array
         self.count_per_class_array = self.dataset.count_per_class_array
         # sample and feature information
@@ -123,7 +128,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # display feature data
         feature_info_string = 'Features:\n\n'
-        counter = 1
+        counter = 0
         for ele in self.feature_names_array:
             feature_info_string += (str('X') + str(counter) + ' - ' + str(ele) + '\n\n')
             counter += 1
@@ -165,7 +170,7 @@ class Ui(QtWidgets.QMainWindow):
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         counter = 0
         for ele in self.feature_names_array:
-            item = QtWidgets.QTableWidgetItem(str(ele) + ' - (X' + str(counter+1) + ')')
+            item = QtWidgets.QTableWidgetItem(str(ele) + ' - (X' + str(counter) + ')')
             self.feature_table.setItem(counter, 0, item)
             counter += 1
 
@@ -243,9 +248,10 @@ class Ui(QtWidgets.QMainWindow):
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
+            self.plot_type = 'SPCP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'SPCP')
+                                                 self.count_per_class_array, self.feature_position_array, self.plot_type)
 
         glcs_checked = self.findChild(QtWidgets.QRadioButton, 'glcsCheck')
         if glcs_checked.isChecked():
@@ -266,6 +272,11 @@ class Ui(QtWidgets.QMainWindow):
                                                  self.count_per_class_array, self.feature_position_array, 'GLCSP_OPT')
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
+        if self.is_placeholder:
+            place_holder = self.findChild(QtWidgets.QWidget, 'placeHolder')
+            self.plot_layout.removeWidget(place_holder)
+            self.is_placeholder = False
+
         self.plot_layout.addWidget(self.plot_widget)
 
     def updatePlot(self):
@@ -282,36 +293,50 @@ class Ui(QtWidgets.QMainWindow):
         else:
             self.plot_widget.plot_markers = True
 
-        classes_to_display = []
         for i in range(self.class_count):
-            if self.class_table.item(i, 0).checkState() == Qt.CheckState.Checked:
-                classes_to_display.append(1)
+            if not self.dataset:
+                self.warnings.noDataWarning()
+                return
+
+            if self.show_axes.checkState() == Qt.CheckState.Unchecked:
+                self.plot_widget.plot_axes = False
             else:
-                classes_to_display.append(0)
+                self.plot_widget.plot_axes = True
+            if self.show_markers.checkState() == Qt.CheckState.Unchecked:
+                self.plot_widget.plot_markers = False
+            else:
+                self.plot_widget.plot_markers = True
 
-        current_class_index_starts = np.asarray([])
-        current_class_vertex_count = np.asarray([])
+            classes_to_display = []
+            for i in range(self.class_count):
+                if self.class_table.item(i, 0).checkState() == Qt.CheckState.Checked:
+                    classes_to_display.append(1)
+                else:
+                    classes_to_display.append(0)
 
-        current_sample_count = 0
-        counter = 0
-        for i in range(self.class_count):
-            if classes_to_display[i] == 1:
-                current_sample_count += self.count_per_class_array[i]
-                current_class_index_starts = np.concatenate((current_class_index_starts,
-                                                             self.plot_widget.all_class_index_starts[
-                                                             counter:counter + self.count_per_class_array[i]]), axis=0)
-                current_class_vertex_count = np.concatenate(
-                    (current_class_vertex_count, self.plot_widget.all_class_vertex_count[
-                                                 counter:counter +
-                                                         self.count_per_class_array[i]]),
-                    axis=0)
-            counter += self.count_per_class_array[i]
+            current_class_index_starts = np.asarray([])
+            current_class_vertex_count = np.asarray([])
 
-        self.plot_widget.current_class_index_starts = current_class_index_starts
-        self.plot_widget.current_class_vertex_count = current_class_vertex_count
-        self.plot_widget.current_sample_count = current_sample_count
-        self.plot_widget.update()
+            current_sample_count = 0
+            counter = 0
+            for i in range(self.class_count):
+                if classes_to_display[i] == 1:
+                    current_sample_count += self.count_per_class_array[i]
+                    current_class_index_starts = np.concatenate((current_class_index_starts,
+                                                                 self.plot_widget.all_class_index_starts[
+                                                                 counter:counter + self.count_per_class_array[i]]),
+                                                                axis=0)
+                    current_class_vertex_count = np.concatenate(
+                        (current_class_vertex_count, self.plot_widget.all_class_vertex_count[
+                                                     counter:counter +
+                                                             self.count_per_class_array[i]]),
+                        axis=0)
+                counter += self.count_per_class_array[i]
 
+            self.plot_widget.current_class_index_starts = current_class_index_starts
+            self.plot_widget.current_class_vertex_count = current_class_vertex_count
+            self.plot_widget.current_sample_count = current_sample_count
+            self.plot_widget.update()
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()

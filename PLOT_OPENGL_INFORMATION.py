@@ -1,6 +1,5 @@
 """
 PLOT_OPENGL_INFORMATION.py holds information related to marker, axes, data, and label of a future plot
-
 Author: Charles Recaido
 Program: MSc in Computational Science
 School: Central Washington University
