@@ -17,6 +17,8 @@ class getGLCSP_OPTInfo:
 
     def getClassVertices(self):
         df = self.dataframe.copy()
+        class_positions = {}
+        class_colors = {}
 
         space = 1 / (int(self.feature_count / 2) + 1)
         for i in range(self.feature_count):

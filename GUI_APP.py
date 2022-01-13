@@ -23,6 +23,7 @@ import DATA
 import MAINPLOT
 import SHOW_HIDE_CLASSES
 
+
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         # load Ui from ui File made in QTDesigner
@@ -221,24 +222,31 @@ class Ui(QtWidgets.QMainWindow):
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
+            self.plot_type = 'DICP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'DICP')
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
+            self.plot_type = 'PCP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'PCP')
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         ap_checked = self.findChild(QtWidgets.QRadioButton, 'apCheck')
         if ap_checked.isChecked():
+            self.plot_type = 'AP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'AP')
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         acpo_checked = self.findChild(QtWidgets.QRadioButton, 'acpoCheck')
         if acpo_checked.isChecked():
+            self.plot_type = 'ACPO'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array, 'ACPO')
@@ -251,25 +259,30 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_type = 'SPCP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, self.plot_type)
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         glcs_checked = self.findChild(QtWidgets.QRadioButton, 'glcsCheck')
         if glcs_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
+            self.plot_type = 'GLCSP'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'GLCSP')
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         glcs_opt_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
         if glcs_opt_checked.isChecked():
             if self.feature_count % 2 != 0:
                 self.warnings.oddFeatureCount()
                 return
+            self.plot_type = 'GLCSP_OPT'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'GLCSP_OPT')
+                                                 self.count_per_class_array, self.feature_position_array,
+                                                 self.plot_type)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         if self.is_placeholder:
@@ -307,36 +320,38 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 self.plot_widget.plot_markers = True
 
-            classes_to_display = []
             for i in range(self.class_count):
                 if self.class_table.item(i, 0).checkState() == Qt.CheckState.Checked:
-                    classes_to_display.append(1)
+                    self.class_to_plot[i] = True
                 else:
-                    classes_to_display.append(0)
+                    self.class_to_plot[i] = False
 
-            current_class_index_starts = np.asarray([])
-            current_class_vertex_count = np.asarray([])
+            class_dict = self.plot_widget.class_dict
+            class_color_dict = self.plot_widget.class_color_dict
 
-            current_sample_count = 0
-            counter = 0
-            for i in range(self.class_count):
-                if classes_to_display[i] == 1:
-                    current_sample_count += self.count_per_class_array[i]
-                    current_class_index_starts = np.concatenate((current_class_index_starts,
-                                                                 self.plot_widget.all_class_index_starts[
-                                                                 counter:counter + self.count_per_class_array[i]]),
-                                                                axis=0)
-                    current_class_vertex_count = np.concatenate(
-                        (current_class_vertex_count, self.plot_widget.all_class_vertex_count[
-                                                     counter:counter +
-                                                             self.count_per_class_array[i]]),
-                        axis=0)
-                counter += self.count_per_class_array[i]
+            marker_dict = self.plot_widget.marker_dict
+            marker_color_dict = self.plot_widget.marker_color_dict
 
-            self.plot_widget.current_class_index_starts = current_class_index_starts
-            self.plot_widget.current_class_vertex_count = current_class_vertex_count
-            self.plot_widget.current_sample_count = current_sample_count
+            update_classes = SHOW_HIDE_CLASSES.showHideClassInfo(class_dict, class_color_dict, marker_dict,
+                                                                 marker_color_dict, self.class_to_plot,
+                                                                 self.class_count, self.feature_count,
+                                                                 self.sample_count,
+                                                                 self.count_per_class_array, self.plot_type)
+
+            self.plot_widget.class_vertices = update_classes.new_class_vertices
+            self.plot_widget.class_colors = update_classes.new_class_colors
+            self.plot_widget.current_class_index_starts = update_classes.new_index_starts
+            self.plot_widget.current_class_vertex_count = update_classes.new_vertex_counts
+            self.plot_widget.current_sample_count = update_classes.new_sample_count
+
+            self.plot_widget.marker_vertices = update_classes.new_marker_vertices
+            self.plot_widget.marker_colors = update_classes.new_marker_colors
+            self.plot_widget.marker_index_starts = update_classes.new_marker_index_starts
+            self.plot_widget.marker_vertex_count = update_classes.new_marker_vertex_counts
+            self.plot_widget.current_marker_count = update_classes.new_marker_count
+
             self.plot_widget.update()
+
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()

@@ -17,6 +17,8 @@ class getGLCSPInfo:
 
     def getClassVertices(self):
         df = self.dataframe.copy()
+        class_positions = {}
+        class_colors = {}
 
         scaler = MinMaxScaler((0, 1))
         k = [0, 0.4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -56,16 +58,25 @@ class getGLCSPInfo:
         colors = COLORS.getColors()
         class_color_array = colors.colors_array
 
-        color_array = np.tile(class_color_array[0], reps=(self.count_per_class_array[0] * int((self.feature_count / 2) + 1), 1))
+        color_array = np.tile(class_color_array[0],
+                              reps=(self.count_per_class_array[0] * int((self.feature_count / 2) + 1), 1))
         for i in range(1, self.class_count):
             temp_array = np.tile(class_color_array[i],
                                  reps=(self.count_per_class_array[i] * int((self.feature_count / 2) + 1), 1))
             color_array = np.concatenate((color_array, temp_array))
 
-        index_starts = np.arange(0, self.sample_count * (int(self.feature_count / 2) + 1), int(self.feature_count / 2) + 1)
+        j = 0
+        for i in range(self.class_count):
+            k = j + (self.count_per_class_array[i] * int(self.feature_count / 2 + 1))
+            class_positions[i] = scaffold_axis[j:k]
+            class_colors[i] = color_array[j:k]
+            j = k
+
+        index_starts = np.arange(0, self.sample_count * (int(self.feature_count / 2) + 1),
+                                 int(self.feature_count / 2) + 1)
         vertex_count = np.repeat(int(self.feature_count / 2) + 1, self.sample_count)
 
-        return scaffold_axis, color_array, index_starts, vertex_count
+        return class_positions, class_colors, index_starts, vertex_count
 
     def getAxesVertices(self):
         axes_count = 2
@@ -76,63 +87,37 @@ class getGLCSPInfo:
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
+        marker_positions = {}
+        marker_colors = {}
+        print(np.shape(scaffold_axis[0]))
 
-        arrowhead_size = 0.01
-        arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
-        triangle_array = np.asarray([[0, 0]])
-        for i in range(self.sample_count * int(self.feature_count / 2 + 1)):
-            if i % int(self.feature_count / 2 + 1) == 0:
-                continue
-            else:
-                triangle_array = np.append(triangle_array, [[scaffold_axis[i][0], scaffold_axis[i][1]]], 0)
+        for i in range(len(scaffold_axis)):
+            print(np.shape(scaffold_axis[i])[0])
+            marker_positions[i] = np.delete(scaffold_axis[i],
+                                            np.arange(0, np.shape(scaffold_axis[i])[0], int(self.feature_count / 2 + 1)), axis=0)
+        #print(marker_positions)
 
-                # find unit vector of line
-                vX = scaffold_axis[i][0] - scaffold_axis[i - 1][0]
-                vY = scaffold_axis[i][1] - scaffold_axis[i - 1][1]
+        colors = COLORS.getColors()
+        class_color_array = colors.colors_array
 
-                length = np.sqrt(vX ** 2 + vY ** 2)
-                if length != 0:
-                    unitvX = vX / length
-                    unitvY = vY / length
-                else:
-                    unitvX = 0
-                    unitvY = 0
+        point_color_array = np.tile(class_color_array[0],
+                                    reps=(self.count_per_class_array[0] * int(self.feature_count / 2), 1))
+        for i in range(1, self.class_count):
+            temp_array = np.tile(class_color_array[i],
+                                 reps=(self.count_per_class_array[i] * int(self.feature_count / 2), 1))
+            point_color_array = np.concatenate((point_color_array, temp_array))
 
-                v_point_1 = [scaffold_axis[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_angle,
-                             scaffold_axis[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_angle]
+        j = 0
+        for i in range(self.class_count):
+            k = j + (self.count_per_class_array[i] * int(self.feature_count / 2))
+            marker_colors[i] = point_color_array[j:k]
+            j = k
 
-                triangle_array = np.append(triangle_array, [[v_point_1[0], v_point_1[1]]], 0)
+        index_starts = np.arange(0, self.sample_count * int(self.feature_count / 2), 1)
+        vertex_count = np.repeat(1, self.sample_count * int(self.feature_count / 2))
+        point_count = self.sample_count * int(self.feature_count / 2)
 
-                v_point_2 = [scaffold_axis[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_angle,
-                             scaffold_axis[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_angle]
-                triangle_array = np.append(triangle_array, [[v_point_2[0], v_point_2[1]]], 0)
-
-        triangle_array = np.delete(triangle_array, 0, 0)
-        # print(triangle_array)
-        arrowhead_color_array = np.tile([0, 0, 0], reps=(triangle_array.shape[0], 1))
-
-        index_starts = np.arange(0, self.sample_count * int(self.feature_count / 2) * 3, 3)
-        vertex_count = np.repeat(3, self.sample_count * int(self.feature_count / 2))
-        triangle_count = self.sample_count * int(self.feature_count / 2)
-
-        return triangle_array, arrowhead_color_array, index_starts, vertex_count, triangle_count
-        """
-        point_array = scaffold_axis
-        print(point_array)
-        new_point_array = ([[0, 0]])
-        for i in range(np.shape(point_array)[1]):
-            if i % int(self.feature_count/2 + 1) == 0:
-                new_point_array.append([point_array[i]])
-        print(new_point_array)
-
-        point_color_array = np.tile([0, 0, 0], reps=(point_array.shape[0], 1))
-
-        index_starts = np.arange(0, self.sample_count * (self.feature_count/2), 1)
-        vertex_count = np.repeat(1, self.sample_count * (self.feature_count/2))
-        point_count = self.sample_count * int(self.feature_count/2)
-        return point_array, point_color_array, index_starts, vertex_count, point_count
-        """
-
+        return marker_positions, marker_colors, index_starts, vertex_count, point_count
 
     def getLabelInformation(self):
         title = 'Angled Coordinate Plot'

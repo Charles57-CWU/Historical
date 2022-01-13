@@ -17,6 +17,8 @@ class getAPInfo:
 
     def getClassVertices(self):
         df = self.dataframe.copy()
+        class_positions = {}
+        class_colors = {}
         """
         scaler = MinMaxScaler((0, 90))
         df[:] = scaler.fit_transform(df[:])
@@ -56,10 +58,17 @@ class getAPInfo:
             temp_array = np.tile(class_color_array[i], reps=(self.count_per_class_array[i] * (self.feature_count + 1), 1))
             color_array = np.concatenate((color_array, temp_array))
 
+        j = 0
+        for i in range(self.class_count):
+            k = j + (self.count_per_class_array[i] * (self.feature_count + 1))
+            class_positions[i] = scaffold_axis[j:k]
+            class_colors[i] = color_array[j:k]
+            j = k
+
         index_starts = np.arange(0, self.sample_count * (self.feature_count + 1), self.feature_count + 1)
         vertex_count = np.repeat(self.feature_count + 1, self.sample_count)
 
-        return scaffold_axis, color_array, index_starts, vertex_count
+        return class_positions, class_colors, index_starts, vertex_count
 
     def getAxesVertices(self):
         axes_count = 2
@@ -70,6 +79,10 @@ class getAPInfo:
         return axes_vertices, axes_color, axes_index_starts, axes_vertex_count, axes_count
 
     def getMarkerVertices(self, scaffold_axis):
+        point_array = scaffold_axis[0]
+        for i in range(1, len(scaffold_axis)):
+            point_array = np.concatenate((point_array, scaffold_axis[i]))
+
         arrowhead_size = 0.01
         arrowhead_angle = arrowhead_size * np.tan(np.radians(30) / 2)
         triangle_array = np.asarray([[0, 0]])
@@ -77,11 +90,11 @@ class getAPInfo:
             if i % int(self.feature_count + 1) == 0:
                 continue
             else:
-                triangle_array = np.append(triangle_array, [[scaffold_axis[i][0], scaffold_axis[i][1]]], 0)
+                triangle_array = np.append(triangle_array, [[point_array[i][0], point_array[i][1]]], 0)
 
                 # find unit vector of line
-                vX = scaffold_axis[i][0] - scaffold_axis[i - 1][0]
-                vY = scaffold_axis[i][1] - scaffold_axis[i - 1][1]
+                vX = point_array[i][0] - point_array[i - 1][0]
+                vY = point_array[i][1] - point_array[i - 1][1]
 
                 length = np.sqrt(vX ** 2 + vY ** 2)
                 if length != 0:
@@ -91,13 +104,13 @@ class getAPInfo:
                     unitvX = 0
                     unitvY = 0
 
-                v_point_1 = [scaffold_axis[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_angle,
-                             scaffold_axis[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_angle]
+                v_point_1 = [point_array[i][0] - unitvX * arrowhead_size - unitvY * arrowhead_angle,
+                             point_array[i][1] - unitvY * arrowhead_size + unitvX * arrowhead_angle]
 
                 triangle_array = np.append(triangle_array, [[v_point_1[0], v_point_1[1]]], 0)
 
-                v_point_2 = [scaffold_axis[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_angle,
-                             scaffold_axis[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_angle]
+                v_point_2 = [point_array[i][0] - unitvX * arrowhead_size + unitvY * arrowhead_angle,
+                             point_array[i][1] - unitvY * arrowhead_size - unitvX * arrowhead_angle]
                 triangle_array = np.append(triangle_array, [[v_point_2[0], v_point_2[1]]], 0)
 
         triangle_array = np.delete(triangle_array, 0, 0)

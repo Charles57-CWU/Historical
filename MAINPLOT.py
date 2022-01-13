@@ -50,12 +50,14 @@ class makePlot(QOpenGLWidget):
         self.plot_type = plot_type
         # class variables
         self.class_vertices = None
+        self.class_dict = None
+
         self.class_colors = None
-        self.all_class_index_starts = None
-        self.current_class_index_starts = None
-        self.all_class_vertex_count = None
-        self.current_class_vertex_count = None
-        self.sample_count = None
+        self.class_color_dict = None
+
+        self.class_index_starts = None
+        self.class_vertex_count = None
+        self.current_sample_count = None
         # axes variables
         self.axes_vertices = None
         self.axes_color = None
@@ -65,11 +67,14 @@ class makePlot(QOpenGLWidget):
         self.plot_axes = True
         self.feature_positions = feature_positions
         # marker variables
+        self.marker_dict = None
+        self.marker_color_dict = None
         self.marker_vertices = None
         self.marker_colors = None
         self.marker_index_starts = None
         self.marker_vertex_count = None
-        self.marker_count = None
+        self.current_marker_count = None
+
         self.plot_markers = True
 
         # get plot information
@@ -82,20 +87,29 @@ class makePlot(QOpenGLWidget):
             all classes will remain fixed as to not lose coordinate information when switching classes to display
             """
             # vertex information in (x, y) cartesian
-            self.class_vertices = ini_plot_info.class_vertices.astype('float32')
+            self.class_dict = ini_plot_info.class_dict
+            self.class_vertices = self.class_dict[0]
+            for i in range(1, len(self.class_dict)):
+                self.class_vertices = np.concatenate((self.class_vertices, self.class_dict[i]))
+            self.class_vertices = self.class_vertices.astype('float32')
+
+            self.class_color_dict = ini_plot_info.class_color_dict
+            self.class_colors = self.class_color_dict[0]
+            for i in range(1, len(self.class_color_dict)):
+                self.class_colors = np.concatenate((self.class_colors, self.class_color_dict[i]))
+            self.class_colors = self.class_colors.astype('float32')
+
+            #self.class_vertices = ini_plot_info.class_vertices.astype('float32')
             # self.current_class_vertices = self.all_class_vertices
             # color at each vertex in (R, G, B) - Note: RGB is scaled between 0 and 1
-            self.class_colors = ini_plot_info.class_colors.astype('float32')
+            #self.class_colors = ini_plot_info.class_colors.astype('float32')
             # self.current_class_color = self.all_class_color
             # gets the starting index for each sample to plot
-            self.all_class_index_starts = ini_plot_info.class_index_starts
-            self.current_class_index_starts = self.all_class_index_starts
+            self.class_index_starts = ini_plot_info.class_index_starts
             # gets the number of vertices to plot per sample
-            self.all_class_vertex_count = ini_plot_info.class_vertex_count
-            self.current_class_vertex_count = self.all_class_vertex_count
+            self.class_vertex_count = ini_plot_info.class_vertex_count
             # number of samples to plot
-            self.sample_count = sample_count
-            self.current_sample_count = self.sample_count
+            self.current_sample_count = sample_count
 
             """
             establish axes to plot
@@ -115,16 +129,25 @@ class makePlot(QOpenGLWidget):
             establish markers to plot
             markers can be turned on/off later on
             """
+            self.marker_dict = ini_plot_info.marker_dict
+            self.marker_vertices = self.marker_dict[0]
+            for i in range(1, len(self.marker_dict)):
+                self.marker_vertices = np.concatenate((self.marker_vertices, self.marker_dict[i]))
+            self.marker_vertices = self.marker_vertices.astype('float32')
+
+            self.marker_color_dict = ini_plot_info.marker_color_dict
+            self.marker_colors = self.marker_color_dict[0]
+            for i in range(1, len(self.marker_color_dict)):
+                self.marker_colors = np.concatenate((self.marker_colors, self.marker_color_dict[i]))
+            self.marker_colors = self.marker_colors.astype('float32')
             # marker information in (x, y) cartesian
-            self.marker_vertices = np.asarray(ini_plot_info.marker_vertices, dtype='float32')
             # color at each vertex in (R, G, B) - Note: RGB is scaled between 0 and 1
-            self.marker_color = np.asarray(ini_plot_info.marker_colors, dtype='float32')
             # gets the starting index for each marker to plot
             self.marker_index_starts = ini_plot_info.marker_index_starts
             # gets the number of vertices to plot per marker
             self.marker_vertex_count = ini_plot_info.marker_vertex_count
             # number of markers to plot
-            self.marker_count = ini_plot_info.marker_count
+            self.current_marker_count = ini_plot_info.marker_count
             """
             label information
             """
@@ -147,7 +170,8 @@ class makePlot(QOpenGLWidget):
     def paintGL(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         if self.plot_type:
-            # ===========================DRAW PLOT SAMPLES=========================================
+            # =====================
+            # ======DRAW PLOT SAMPLES=========================================
             # bind the buffers
             vbo_class_vertices = glvbo.VBO(self.class_vertices)
             vbo_class_vertices.bind()
@@ -159,7 +183,7 @@ class makePlot(QOpenGLWidget):
             glEnableClientState(GL_COLOR_ARRAY)
             glColorPointer(3, GL_FLOAT, 0, vbo_class_colors)
             # draw the samples
-            glMultiDrawArrays(GL_LINE_STRIP, self.current_class_index_starts, self.current_class_vertex_count,
+            glMultiDrawArrays(GL_LINE_STRIP, self.class_index_starts, self.class_vertex_count,
                               self.current_sample_count)
 
             # unbind buffers
@@ -191,24 +215,23 @@ class makePlot(QOpenGLWidget):
                 vbo_axes_color.unbind()
 
             # ===========================DRAW PLOT MARKERS=========================================
-            if self.plot_markers and self.plot_type != 'PCP':
-
+            if self.plot_markers:
                 # bind the buffers
                 vbo_marker_vertices = glvbo.VBO(self.marker_vertices)
                 vbo_marker_vertices.bind()
                 glEnableClientState(GL_VERTEX_ARRAY)
                 glVertexPointer(2, GL_FLOAT, 0, vbo_marker_vertices)
 
-                vbo_marker_color = glvbo.VBO(self.marker_color)
+                vbo_marker_color = glvbo.VBO(self.marker_colors)
                 vbo_marker_color.bind()
                 glEnableClientState(GL_COLOR_ARRAY)
                 glColorPointer(3, GL_FLOAT, 0, vbo_marker_color)
 
                 # draw axes
-                if self.plot_type == 'AP' or self.plot_type == 'GLCSP' or self.plot_type == 'GLCSP_OPT':
-                    glMultiDrawArrays(GL_TRIANGLES, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
-                if self.plot_type == 'DICP' or self.plot_type == 'SPCP':
-                    glMultiDrawArrays(GL_POINTS, self.marker_index_starts, self.marker_vertex_count, self.marker_count)
+                #if self.plot_type == 'AP' or self.plot_type == 'GLCSP' or self.plot_type == 'GLCSP_OPT':
+                #    glMultiDrawArrays(GL_TRIANGLES, self.marker_index_starts, self.marker_vertex_count, self.current_marker_count)
+
+                glMultiDrawArrays(GL_POINTS, self.marker_index_starts, self.marker_vertex_count, self.current_marker_count)
 
                 # unbind buffers
                 glDisableClientState(GL_VERTEX_ARRAY)
