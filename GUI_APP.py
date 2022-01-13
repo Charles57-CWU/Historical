@@ -34,7 +34,7 @@ class Ui(QtWidgets.QMainWindow):
         self.dataset = None
         self.plot_type = None
         self.plot_layout = None
-        self.class_table = None
+        self.class_table = self.findChild(QtWidgets.QTableWidget, 'classTable')
         self.feature_table = self.findChild(QtWidgets.QTableWidget, 'featureTable')
         self.warnings = WARNINGS.getWarning()
         self.colors = COLORS.getColors()
@@ -43,13 +43,20 @@ class Ui(QtWidgets.QMainWindow):
         self.sample_count = None
         self.count_per_class_array = None
         self.class_to_plot = None
+        self.marker_to_plot = None
         self.dataframe = None
         self.index_starts = None
         self.vertex_count = None
         self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, 0, self.plot_type)
-        self.feature_table.__class__.dropEvent = self.featureSwap
+
+        self.cellSwap = QtWidgets.QTableWidget()
+        self.cellSwap.__class__.dropEvent = self.tableSwap
+
+        #self.class_table.__class__.dropEvent = self.classSwap
         self.feature_position_array = None
         self.feature_names_array = None
+        self.class_names_array = None
+        self.class_position_array = None
 
         self.is_placeholder = True
 
@@ -99,15 +106,17 @@ class Ui(QtWidgets.QMainWindow):
 
         # class information
         self.class_count = self.dataset.class_count
-        self.class_to_plot = np.repeat(1, self.class_count)
+        self.class_to_plot = np.repeat(True, self.class_count)
+        self.marker_to_plot = np.repeat(True, self.class_count)
         print(self.class_to_plot)
-        class_names_array = self.dataset.class_names_array
+        self.class_names_array = self.dataset.class_names_array
         self.count_per_class_array = self.dataset.count_per_class_array
         # sample and feature information
         self.sample_count = self.dataset.sample_count
         self.feature_count = self.dataset.feature_count
         self.feature_names_array = self.dataset.feature_names_array
         self.feature_position_array = np.arange(1, self.feature_count + 1)
+        self.class_position_array = np.arange(1, self.class_count + 1)
 
         # display class data
         class_info_string = ('Dataset Name: ' + dataset_name +
@@ -117,7 +126,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # loop through class names
         counter = 1
-        for ele in class_names_array:
+        for ele in self.class_names_array:
             class_info_string += ('\n\n' + 'Class ' + str(counter) + ' - ' + str(ele) +
                                   '\n' + '--Count: ' + str(self.count_per_class_array[counter - 1]) +
                                   '\n' + '--Color: ' + self.colors.colors_names_array[counter - 1])
@@ -141,20 +150,41 @@ class Ui(QtWidgets.QMainWindow):
         feature_info = self.findChild(QtWidgets.QTextBrowser, 'attributeBrowser')
         feature_info.setText(feature_info_string)
 
-        self.class_table = self.findChild(QtWidgets.QTableWidget, 'classTable')
         self.class_table.setRowCount(self.class_count)
-        self.class_table.setColumnCount(1)
-        self.class_table.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem('Class'))
-        header = self.class_table.horizontalHeader()
-        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        self.class_table.setColumnCount(3)
+
+        self.class_table.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem('Class Order'))
+        self.class_table.setHorizontalHeaderItem(2, QtWidgets.QTableWidgetItem('Markers'))
+        self.class_table.setHorizontalHeaderItem(1, QtWidgets.QTableWidgetItem('Class'))
+
+        self.class_table.setDragEnabled(True)
+        self.class_table.setAcceptDrops(True)
+        #self.class_table.viewport().setAcceptDrops(True)
+        self.class_table.setDropIndicatorShown(True)
+        #self.class_table.setDragDropOverwriteMode(False)
+        #self.class_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.class_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        #self.class_table.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+
+        class_header = self.class_table.horizontalHeader()
+        class_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        class_header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         counter = 0
-        for ele in class_names_array:
+        for ele in self.class_names_array:
             class_color_string = str(ele) + ' - (' + self.colors.colors_names_array[counter] + ')'
-            item = QtWidgets.QTableWidgetItem(class_color_string)
-            item.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
-            item.setCheckState(Qt.CheckState.Checked)
-            self.class_table.setItem(counter, 0, item)
+            class_name = QtWidgets.QTableWidgetItem(class_color_string)
+            self.class_table.setItem(counter, 0, class_name)
+
+            marker_check = QtWidgets.QTableWidgetItem()
+            marker_check.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            marker_check.setCheckState(Qt.CheckState.Checked)
+            self.class_table.setItem(counter, 2, marker_check)
+
+            class_check = QtWidgets.QTableWidgetItem()
+            class_check.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            class_check.setCheckState(Qt.CheckState.Checked)
+            self.class_table.setItem(counter, 1, class_check)
+
             counter += 1
 
         self.feature_table.setRowCount(self.feature_count)
@@ -175,23 +205,34 @@ class Ui(QtWidgets.QMainWindow):
             self.feature_table.setItem(counter, 0, item)
             counter += 1
 
-    def featureSwap(self, event):
-        moved_from = self.feature_table.currentRow()
-        from_item = self.feature_table.item(moved_from, 0).text()
-        moved_to = self.feature_table.rowAt(event.pos().y())
-        to_item = self.feature_table.item(moved_to, 0).text()
+    def tableSwap(self, event):
+        table = event.source()
+        moved_from = table.currentRow()
+        from_item = table.item(moved_from, 0).text()
 
-        self.feature_table.item(moved_from, 0).setText(to_item)
-        self.feature_table.item(moved_to, 0).setText(from_item)
+        moved_to = table.rowAt(event.pos().y())
+        to_item = table.item(moved_to, 0).text()
 
-        place_holder = self.feature_names_array[moved_from]
-        self.feature_names_array[moved_from] = self.feature_names_array[moved_to]
-        self.feature_names_array[moved_to] = place_holder
+        table.item(moved_from, 0).setText(to_item)
+        table.item(moved_to, 0).setText(from_item)
 
-        place_holder = self.feature_position_array[moved_from]
-        self.feature_position_array[moved_from] = self.feature_position_array[moved_to]
-        self.feature_position_array[moved_to] = place_holder
-        self.plot_widget.feature_positions = self.feature_position_array
+        if table == self.class_table:
+            place_holder = self.class_names_array[moved_from]
+            self.class_names_array[moved_from] = self.class_names_array[moved_to]
+            self.class_names_array[moved_to] = place_holder
+
+            place_holder = self.class_position_array[moved_from]
+            self.class_position_array[moved_from] = self.class_position_array[moved_to]
+            self.class_position_array[moved_to] = place_holder
+        elif table == self.feature_table:
+            place_holder = self.feature_names_array[moved_from]
+            self.feature_names_array[moved_from] = self.feature_names_array[moved_to]
+            self.feature_names_array[moved_to] = place_holder
+
+            place_holder = self.feature_position_array[moved_from]
+            self.feature_position_array[moved_from] = self.feature_position_array[moved_to]
+            self.feature_position_array[moved_to] = place_holder
+            self.plot_widget.feature_positions = self.feature_position_array
 
         event.accept()
 
@@ -321,10 +362,15 @@ class Ui(QtWidgets.QMainWindow):
                 self.plot_widget.plot_markers = True
 
             for i in range(self.class_count):
-                if self.class_table.item(i, 0).checkState() == Qt.CheckState.Checked:
+                if self.class_table.item(i, 1).checkState() == Qt.CheckState.Checked:
                     self.class_to_plot[i] = True
                 else:
                     self.class_to_plot[i] = False
+
+                if self.class_table.item(i, 2).checkState() == Qt.CheckState.Checked:
+                    self.marker_to_plot[i] = True
+                else:
+                    self.marker_to_plot[i] = False
 
             class_dict = self.plot_widget.class_dict
             class_color_dict = self.plot_widget.class_color_dict
@@ -333,7 +379,7 @@ class Ui(QtWidgets.QMainWindow):
             marker_color_dict = self.plot_widget.marker_color_dict
 
             update_classes = SHOW_HIDE_CLASSES.showHideClassInfo(class_dict, class_color_dict, marker_dict,
-                                                                 marker_color_dict, self.class_to_plot,
+                                                                 marker_color_dict, self.class_to_plot, self.marker_to_plot,
                                                                  self.class_count, self.feature_count,
                                                                  self.sample_count,
                                                                  self.count_per_class_array, self.plot_type)

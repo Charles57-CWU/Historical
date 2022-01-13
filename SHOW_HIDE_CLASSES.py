@@ -47,7 +47,7 @@ def new_class_vertex_info(line_length, class_count, class_to_plot, count_per_cla
     return new_class_vertices, new_class_colors, new_sample_count, new_vertex_counts, new_index_starts
 
 
-def new_marker_vertex_info(marker_per_line, class_count, class_to_plot, count_per_class_array, marker_dict, marker_color_dict):
+def new_marker_vertex_info(marker_per_line, class_count, marker_to_plot, count_per_class_array, marker_dict, marker_color_dict):
     new_marker_vertices = [[0, 0]]
     new_marker_colors = [[0, 0, 0]]
     new_marker_count = 0
@@ -56,7 +56,7 @@ def new_marker_vertex_info(marker_per_line, class_count, class_to_plot, count_pe
 
     j = 0
     for i in range(class_count):
-        if class_to_plot[i]:
+        if marker_to_plot[i]:
             k = j + count_per_class_array[i] * marker_per_line
             temp_starts = np.arange(j, k, marker_per_line)
             new_index_starts = np.concatenate((new_index_starts, temp_starts))
@@ -79,7 +79,7 @@ def new_marker_vertex_info(marker_per_line, class_count, class_to_plot, count_pe
 
 
 class showHideClassInfo:
-    def __init__(self, class_dict, class_color_dict, marker_dict, marker_color_dict, class_to_plot, class_count, feature_count, sample_count,
+    def __init__(self, class_dict, class_color_dict, marker_dict, marker_color_dict, class_to_plot, marker_to_plot, class_count, feature_count, sample_count,
                  count_per_class_array, plot_type):
 
         line_length = None
@@ -113,5 +113,5 @@ class showHideClassInfo:
             line_length, class_count, class_to_plot, count_per_class_array, class_dict, class_color_dict)
 
         self.new_marker_vertices, self.new_marker_colors, self.new_marker_count, self.new_marker_vertex_counts, self.new_marker_index_starts = new_marker_vertex_info(
-            marker_per_line, class_count, class_to_plot, count_per_class_array, marker_dict, marker_color_dict)
+            marker_per_line, class_count, marker_to_plot, count_per_class_array, marker_dict, marker_color_dict)
 
