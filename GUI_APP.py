@@ -47,12 +47,11 @@ class Ui(QtWidgets.QMainWindow):
         self.dataframe = None
         self.index_starts = None
         self.vertex_count = None
-        self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, 0, self.plot_type)
+        self.plot_widget = MAINPLOT.makePlot(0, 0, 0, 0, 0, 0, 0, 0, self.plot_type)
 
         self.cellSwap = QtWidgets.QTableWidget()
         self.cellSwap.__class__.dropEvent = self.tableSwap
 
-        #self.class_table.__class__.dropEvent = self.classSwap
         self.feature_position_array = None
         self.feature_names_array = None
         self.class_names_array = None
@@ -116,7 +115,7 @@ class Ui(QtWidgets.QMainWindow):
         self.feature_count = self.dataset.feature_count
         self.feature_names_array = self.dataset.feature_names_array
         self.feature_position_array = np.arange(1, self.feature_count + 1)
-        self.class_position_array = np.arange(1, self.class_count + 1)
+        self.class_position_array = np.arange(0, self.class_count)
 
         # display class data
         class_info_string = ('Dataset Name: ' + dataset_name +
@@ -159,12 +158,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.class_table.setDragEnabled(True)
         self.class_table.setAcceptDrops(True)
-        #self.class_table.viewport().setAcceptDrops(True)
         self.class_table.setDropIndicatorShown(True)
-        #self.class_table.setDragDropOverwriteMode(False)
-        #self.class_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.class_table.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        #self.class_table.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
 
         class_header = self.class_table.horizontalHeader()
         class_header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
@@ -267,7 +262,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         pcp_checked = self.findChild(QtWidgets.QRadioButton, 'pcpCheck')
         if pcp_checked.isChecked():
@@ -275,7 +270,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         ap_checked = self.findChild(QtWidgets.QRadioButton, 'apCheck')
         if ap_checked.isChecked():
@@ -283,14 +278,14 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         acpo_checked = self.findChild(QtWidgets.QRadioButton, 'acpoCheck')
         if acpo_checked.isChecked():
-            self.plot_type = 'ACPO'
+            self.plot_type = 'ACP_OPT'
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
-                                                 self.count_per_class_array, self.feature_position_array, 'ACPO')
+                                                 self.count_per_class_array, self.feature_position_array, self.plot_type, self.feature_names_array, self.class_names_array)
 
         spc_checked = self.findChild(QtWidgets.QRadioButton, 'spcCheck')
         if spc_checked.isChecked():
@@ -301,7 +296,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         glcs_checked = self.findChild(QtWidgets.QRadioButton, 'glcsCheck')
         if glcs_checked.isChecked():
@@ -312,7 +307,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         glcs_opt_checked = self.findChild(QtWidgets.QRadioButton, 'glcstCheck')
         if glcs_opt_checked.isChecked():
@@ -323,7 +318,7 @@ class Ui(QtWidgets.QMainWindow):
             self.plot_widget = MAINPLOT.makePlot(self.dataframe, self.class_count, self.feature_count,
                                                  self.sample_count,
                                                  self.count_per_class_array, self.feature_position_array,
-                                                 self.plot_type)
+                                                 self.plot_type, self.feature_names_array, self.class_names_array)
 
         self.plot_layout = self.findChild(QtWidgets.QVBoxLayout, 'plotDisplay')
         if self.is_placeholder:
@@ -381,7 +376,7 @@ class Ui(QtWidgets.QMainWindow):
             update_classes = SHOW_HIDE_CLASSES.showHideClassInfo(class_dict, class_color_dict, marker_dict,
                                                                  marker_color_dict, self.class_to_plot, self.marker_to_plot,
                                                                  self.class_count, self.feature_count,
-                                                                 self.sample_count,
+                                                                 self.sample_count, self.class_position_array,
                                                                  self.count_per_class_array, self.plot_type)
 
             self.plot_widget.class_vertices = update_classes.new_class_vertices

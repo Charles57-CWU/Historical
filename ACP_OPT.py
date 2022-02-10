@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 import COLORS
 
 
-class getAPInfo:
+class getCC2Info:
     def __init__(self, dataframe, class_count, feature_count, sample_count,
                  count_per_class_array):
 
@@ -19,44 +19,36 @@ class getAPInfo:
         df = self.dataframe.copy()
         class_positions = {}
         class_colors = {}
-        """
-        scaler = MinMaxScaler((0, 90))
-        df[:] = scaler.fit_transform(df[:])
-        """
 
         # scale attributes to fit to graphic coordinate system -0.8 to 0.8
-        scaler = MinMaxScaler((-1, 1))
+        scaler = MinMaxScaler((0, 1))
         df[:] = scaler.fit_transform(df[:])
         #tmp = df.to_numpy().reshape(-1, 1)
         #scaled = scaler.fit_transform(tmp).reshape(len(df), self.feature_count)
         #df.loc[:] = scaled
-        print(df)
+
         # get y_coord
         y_coord = df.to_numpy()
         y_coord = y_coord.ravel()
 
         space = 1 / self.feature_count
-        print(space)
-        scaffold_axis = np.asarray([[0, 0]])
-        print(y_coord)
 
+        scaffold_axis = np.asarray([[0, 0]])
+
+        angle_array = [80, 55, 25, 10, 20, 20, 20, 20, 20, 20, 45, 45]
         j = 0
+        k = 0
         for i in range(1, self.sample_count * (self.feature_count + 1)):
             if i % (self.feature_count + 1) == 0:
                 scaffold_axis = np.append(scaffold_axis, [[0, 0]], 0)
+                j = 0
             else:
-                if y_coord[j] >= 0:
-                    new_x = np.cos(np.arccos(np.minimum(1, np.abs(y_coord[j])))) * (y_coord[j] * space)
-                    new_y = np.sin(np.arccos(np.minimum(1, np.abs(y_coord[j])))) * (y_coord[j] * space)
-                    scaffold_axis = np.append(scaffold_axis, [
-                        [scaffold_axis[i - 1][0] + new_x, scaffold_axis[i - 1][1] + new_y]], 0)
-                    j += 1
-                else:
-                    new_x = -np.cos(np.arccos(np.minimum(1, np.abs(y_coord[j])))) * np.abs(y_coord[j]) * space
-                    new_y = np.sin(np.arccos(np.minimum(1, np.abs(y_coord[j])))) * np.abs(y_coord[j]) * space
-                    scaffold_axis = np.append(scaffold_axis, [
-                        [scaffold_axis[i - 1][0] + new_x, scaffold_axis[i - 1][1] + new_y]], 0)
-                    j += 1
+                new_x = np.cos(np.deg2rad(angle_array[j])) * y_coord[k] * space
+                new_y = np.sin(np.deg2rad(angle_array[j])) * y_coord[k] * space
+                scaffold_axis = np.append(scaffold_axis, [
+                    [scaffold_axis[i - 1][0] + new_x, scaffold_axis[i - 1][1] + new_y]], 0)
+                j += 1
+                k += 1
 
         # how to randomly generate more colors?
         colors = COLORS.getColors()

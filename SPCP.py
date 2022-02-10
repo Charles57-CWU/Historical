@@ -73,7 +73,26 @@ class getSPCPInfo:
         return class_positions, class_colors, data_plot_indices, data_vertices_per_line
 
     def getAxesVertices(self):
-        # add x-axis
+        axis_vertex_array = [[0, 0], [1, 0]]
+        new_count = int(self.feature_count / 2) + 1
+
+        new_count = int(self.feature_count / 2) + 1
+        x_coord_array = np.linspace(start=0, stop=1, num=new_count)
+        y_coord_array_bottom = np.repeat(0, new_count)
+        y_coord_array_top = np.repeat(1, new_count)
+
+        for i in range(new_count - 1):
+            axis_vertex_array.append([x_coord_array[i], y_coord_array_bottom[i]])
+            axis_vertex_array.append([x_coord_array[i], y_coord_array_top[i]])
+
+        axis_color_array = np.tile([0, 0, 0], reps=(int(self.feature_count / 2 + 1) * 2, 1))
+
+        axis_ind = np.arange(0, int(self.feature_count/2 + 11) * 2, 2)
+        axis_per_line = np.repeat(2, int(self.feature_count/2 + 1))
+        axes_count = int(self.feature_count / 2) + 1
+
+        return axis_vertex_array, axis_color_array, axis_ind, axis_per_line, axes_count
+        """
         axis_vertex_array = [[0, 0], [1, 0]]
         j = 0.1
         for i in range(10):
@@ -98,6 +117,7 @@ class getSPCPInfo:
         axes_count = int(self.feature_count / 2) + 11
 
         return axis_vertex_array, axis_color_array, axis_ind, axis_per_line, axes_count
+        """
 
     def getMarkerVertices(self, scaffold_axis):
         marker_positions = scaffold_axis
